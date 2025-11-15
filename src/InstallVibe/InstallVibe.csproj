@@ -27,11 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="**\*.xaml" />
-    <Page Include="**\*.xaml" Exclude="bin\**\*.xaml;obj\**\*.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 </Project>
