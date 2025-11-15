@@ -1,4 +1,5 @@
 using InstallVibe.Core.Models.Domain;
+using InstallVibe.Core.Models.Media;
 using InstallVibe.Core.Models.Progress;
 using InstallVibe.Core.Services.Data;
 using InstallVibe.Core.Services.Media;

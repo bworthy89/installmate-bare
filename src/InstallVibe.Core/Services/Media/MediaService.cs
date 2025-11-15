@@ -1,4 +1,5 @@
 using InstallVibe.Core.Models.Domain;
+using InstallVibe.Core.Models.Media;
 using InstallVibe.Core.Services.Cache;
 using InstallVibe.Core.Services.SharePoint;
 using InstallVibe.Data.Context;

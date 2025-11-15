@@ -1,4 +1,5 @@
 using InstallVibe.Core.Models.Domain;
+using InstallVibe.Core.Models.Media;
 
 namespace InstallVibe.Core.Services.Media;
 
@@ -55,76 +56,4 @@ public interface IMediaService
     /// </summary>
     /// <returns>Media cache statistics.</returns>
     Task<MediaCacheStatistics> GetCacheStatisticsAsync();
-}
-
-/// <summary>
-/// Progress update for media caching operations.
-/// </summary>
-public class MediaCacheProgress
-{
-    /// <summary>
-    /// Current media being processed.
-    /// </summary>
-    public string CurrentMediaId { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Number of media files processed.
-    /// </summary>
-    public int ProcessedCount { get; set; }
-
-    /// <summary>
-    /// Total number of media files to process.
-    /// </summary>
-    public int TotalCount { get; set; }
-
-    /// <summary>
-    /// Percentage complete (0-100).
-    /// </summary>
-    public double PercentComplete => TotalCount > 0 ? (ProcessedCount * 100.0) / TotalCount : 0;
-
-    /// <summary>
-    /// Bytes downloaded so far.
-    /// </summary>
-    public long BytesDownloaded { get; set; }
-}
-
-/// <summary>
-/// Statistics about cached media.
-/// </summary>
-public class MediaCacheStatistics
-{
-    /// <summary>
-    /// Total number of cached media files.
-    /// </summary>
-    public int TotalMediaFiles { get; set; }
-
-    /// <summary>
-    /// Total size in bytes of all cached media.
-    /// </summary>
-    public long TotalSizeBytes { get; set; }
-
-    /// <summary>
-    /// Total size in megabytes.
-    /// </summary>
-    public double TotalSizeMB => TotalSizeBytes / (1024.0 * 1024.0);
-
-    /// <summary>
-    /// Number of images cached.
-    /// </summary>
-    public int ImageCount { get; set; }
-
-    /// <summary>
-    /// Number of videos cached.
-    /// </summary>
-    public int VideoCount { get; set; }
-
-    /// <summary>
-    /// Number of documents cached.
-    /// </summary>
-    public int DocumentCount { get; set; }
-
-    /// <summary>
-    /// Largest media file size in bytes.
-    /// </summary>
-    public long LargestFileSizeBytes { get; set; }
 }
