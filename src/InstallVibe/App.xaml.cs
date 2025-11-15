@@ -1,6 +1,7 @@
 using InstallVibe.Core.Services.Activation;
 using InstallVibe.Core.Services.Cache;
 using InstallVibe.Core.Services.Data;
+using InstallVibe.Core.Services.Editor;
 using InstallVibe.Core.Services.Engine;
 using InstallVibe.Core.Services.Media;
 using InstallVibe.Core.Services.SharePoint;
@@ -14,11 +15,13 @@ using InstallVibe.Services.Navigation;
 using InstallVibe.ViewModels.Activation;
 using InstallVibe.ViewModels.Admin;
 using InstallVibe.ViewModels.Dashboard;
+using InstallVibe.ViewModels.Editor;
 using InstallVibe.ViewModels.Guide;
 using InstallVibe.ViewModels.Settings;
 using InstallVibe.Views.Activation;
 using InstallVibe.Views.Admin;
 using InstallVibe.Views.Dashboard;
+using InstallVibe.Views.Editor;
 using InstallVibe.Views.Guide;
 using InstallVibe.Views.Settings;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +44,14 @@ public partial class App : Application
     public new static App Current => (App)Application.Current;
 
     public IServiceProvider Services => _serviceProvider;
+
+    /// <summary>
+    /// Helper method to get a service from the service provider.
+    /// </summary>
+    public static T GetService<T>() where T : class
+    {
+        return ((App)Application.Current).Services.GetRequiredService<T>();
+    }
 
     public App()
     {
@@ -127,6 +138,10 @@ public partial class App : Application
         services.AddScoped<IMediaService, MediaService>();
         services.AddScoped<IGuideEngine, GuideEngine>();
 
+        // Editor Services
+        services.AddScoped<IGuideEditorService, GuideEditorService>();
+        services.AddScoped<IMediaUploadService, MediaUploadService>();
+
         // UI Services
         services.AddSingleton<INavigationService>(sp =>
         {
@@ -140,6 +155,7 @@ public partial class App : Application
             nav.RegisterPage<StepPage>("Step");
             nav.RegisterPage<SettingsPage>("Settings");
             nav.RegisterPage<AdminEditorPage>("AdminEditor");
+            nav.RegisterPage<GuideEditorPage>("GuideEditor");
 
             return nav;
         });
@@ -153,6 +169,10 @@ public partial class App : Application
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<AdminEditorViewModel>();
 
+        // Editor ViewModels
+        services.AddTransient<GuideEditorViewModel>();
+        services.AddTransient<StepEditorViewModel>();
+
         // Views
         services.AddTransient<ActivationPage>();
         services.AddTransient<DashboardPage>();
@@ -161,6 +181,9 @@ public partial class App : Application
         services.AddTransient<StepPage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<AdminEditorPage>();
+
+        // Editor Views
+        services.AddTransient<GuideEditorPage>();
 
         // MainWindow
         services.AddSingleton<MainWindow>();

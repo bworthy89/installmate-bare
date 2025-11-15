@@ -1,0 +1,256 @@
+<UserControl
+    x:Class="InstallVibe.Controls.StepEditorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:InstallVibe.Controls"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Spacing="24" Padding="16">
+            <TextBlock Text="Edit Step"
+                       FontSize="24"
+                       FontWeight="Bold"/>
+
+            <!-- Step Details -->
+            <StackPanel Spacing="16">
+                <TextBlock Text="Step Details"
+                           FontSize="18"
+                           FontWeight="SemiBold"/>
+
+                <TextBox x:Name="StepTitleTextBox"
+                         Header="Title"
+                         PlaceholderText="Enter step title"
+                         TextWrapping="Wrap"/>
+
+                <TextBox x:Name="StepInstructionsTextBox"
+                         Header="Instructions"
+                         PlaceholderText="Enter detailed instructions"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         MinHeight="120"/>
+
+                <NumberBox x:Name="EstimatedMinutesNumberBox"
+                           Header="Estimated Duration (minutes)"
+                           Minimum="1"
+                           Maximum="120"
+                           SpinButtonPlacementMode="Inline"/>
+            </StackPanel>
+
+            <!-- Checkpoints -->
+            <StackPanel Spacing="16">
+                <Grid>
+                    <TextBlock Text="Checkpoints"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <Button Content="Add Checkpoint"
+                            x:Name="AddCheckpointButton"
+                            HorizontalAlignment="Right"/>
+                </Grid>
+
+                <ItemsControl x:Name="CheckpointsItemsControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="12"
+                                    Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <CheckBox Grid.Column="0"
+                                              IsChecked="{Binding IsRequired, Mode=TwoWay}"
+                                              VerticalAlignment="Top"
+                                              Margin="0,0,12,0"/>
+
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding Description, Mode=TwoWay}"
+                                             PlaceholderText="Checkpoint description"
+                                             TextWrapping="Wrap"/>
+
+                                    <StackPanel Grid.Column="2"
+                                                Orientation="Horizontal"
+                                                Spacing="8"
+                                                Margin="12,0,0,0">
+                                        <Button Content="&#xE70F;"
+                                                FontFamily="Segoe MDL2 Assets"
+                                                FontSize="14"
+                                                ToolTipService.ToolTip="Move Up"
+                                                Tag="{Binding}"
+                                                Click="MoveCheckpointUp_Click"
+                                                Style="{StaticResource IconButtonStyle}"/>
+                                        <Button Content="&#xE74B;"
+                                                FontFamily="Segoe MDL2 Assets"
+                                                FontSize="14"
+                                                ToolTipService.ToolTip="Move Down"
+                                                Tag="{Binding}"
+                                                Click="MoveCheckpointDown_Click"
+                                                Style="{StaticResource IconButtonStyle}"/>
+                                        <Button Content="&#xE74D;"
+                                                FontFamily="Segoe MDL2 Assets"
+                                                FontSize="14"
+                                                ToolTipService.ToolTip="Delete"
+                                                Tag="{Binding}"
+                                                Click="DeleteCheckpoint_Click"
+                                                Style="{StaticResource IconButtonStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <StackPanel x:Name="CheckpointsEmptyState"
+                            HorizontalAlignment="Center"
+                            Padding="24">
+                    <FontIcon Glyph="&#xE73A;"
+                              FontSize="32"
+                              Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                    <TextBlock Text="No checkpoints added"
+                               FontSize="14"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Margin="0,8,0,0"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Media -->
+            <controls:MediaUploadControl x:Name="MediaControl"/>
+
+            <!-- Actions -->
+            <StackPanel Spacing="16">
+                <Grid>
+                    <TextBlock Text="Actions"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <Button Content="Add Action"
+                            x:Name="AddActionButton"
+                            HorizontalAlignment="Right"/>
+                </Grid>
+
+                <ItemsControl x:Name="ActionsItemsControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="12"
+                                    Margin="0,0,0,8">
+                                <StackPanel Spacing="12">
+                                    <Grid>
+                                        <ComboBox Header="Type"
+                                                  SelectedItem="{Binding Type, Mode=TwoWay}"
+                                                  HorizontalAlignment="Stretch">
+                                            <x:String>Manual</x:String>
+                                            <x:String>Script</x:String>
+                                            <x:String>FileOperation</x:String>
+                                            <x:String>ServiceOperation</x:String>
+                                        </ComboBox>
+
+                                        <StackPanel Orientation="Horizontal"
+                                                    Spacing="8"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Top">
+                                            <Button Content="&#xE70F;"
+                                                    FontFamily="Segoe MDL2 Assets"
+                                                    FontSize="14"
+                                                    ToolTipService.ToolTip="Move Up"
+                                                    Tag="{Binding}"
+                                                    Click="MoveActionUp_Click"
+                                                    Style="{StaticResource IconButtonStyle}"/>
+                                            <Button Content="&#xE74B;"
+                                                    FontFamily="Segoe MDL2 Assets"
+                                                    FontSize="14"
+                                                    ToolTipService.ToolTip="Move Down"
+                                                    Tag="{Binding}"
+                                                    Click="MoveActionDown_Click"
+                                                    Style="{StaticResource IconButtonStyle}"/>
+                                            <Button Content="&#xE74D;"
+                                                    FontFamily="Segoe MDL2 Assets"
+                                                    FontSize="14"
+                                                    ToolTipService.ToolTip="Delete"
+                                                    Tag="{Binding}"
+                                                    Click="DeleteAction_Click"
+                                                    Style="{StaticResource IconButtonStyle}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBox Header="Description"
+                                             Text="{Binding Description, Mode=TwoWay}"
+                                             PlaceholderText="Action description"/>
+
+                                    <TextBox Header="Command"
+                                             Text="{Binding Command, Mode=TwoWay}"
+                                             PlaceholderText="Command or script"/>
+
+                                    <CheckBox Content="Required"
+                                              IsChecked="{Binding IsRequired, Mode=TwoWay}"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <StackPanel x:Name="ActionsEmptyState"
+                            HorizontalAlignment="Center"
+                            Padding="24">
+                    <FontIcon Glyph="&#xE8B7;"
+                              FontSize="32"
+                              Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                    <TextBlock Text="No actions added"
+                               FontSize="14"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Margin="0,8,0,0"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Validation -->
+            <StackPanel Spacing="16">
+                <TextBlock Text="Validation"
+                           FontSize="18"
+                           FontWeight="SemiBold"/>
+
+                <ComboBox x:Name="ValidationTypeComboBox"
+                          Header="Type"
+                          HorizontalAlignment="Stretch">
+                    <x:String>Manual</x:String>
+                    <x:String>Automatic</x:String>
+                    <x:String>Script</x:String>
+                </ComboBox>
+
+                <CheckBox x:Name="ValidationRequiredCheckBox"
+                          Content="Validation Required"/>
+
+                <TextBox x:Name="ValidationScriptTextBox"
+                         Header="Validation Script"
+                         PlaceholderText="Enter validation script (PowerShell)"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         MinHeight="80"/>
+
+                <TextBox x:Name="SuccessCriteriaTextBox"
+                         Header="Success Criteria"
+                         PlaceholderText="Describe what indicates successful completion"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         MinHeight="60"/>
+            </StackPanel>
+
+            <!-- Save Button -->
+            <Button x:Name="SaveStepButton"
+                    Content="Save Changes"
+                    HorizontalAlignment="Stretch"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Click="SaveStep_Click"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
