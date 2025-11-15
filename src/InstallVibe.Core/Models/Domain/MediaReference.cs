@@ -16,6 +16,11 @@ public class MediaReference
     public string MediaType { get; set; } = "image";
 
     /// <summary>
+    /// URL or path to the media file.
+    /// </summary>
+    public string? Url { get; set; }
+
+    /// <summary>
     /// Caption or description for the media.
     /// </summary>
     public string? Caption { get; set; }

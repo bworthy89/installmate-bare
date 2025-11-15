@@ -13,6 +13,15 @@ public class Guide
     public string GuideId { get; set; } = string.Empty;
 
     /// <summary>
+    /// Alias for GuideId (for compatibility).
+    /// </summary>
+    public string Id
+    {
+        get => GuideId;
+        set => GuideId = value;
+    }
+
+    /// <summary>
     /// Display title of the guide.
     /// </summary>
     public string Title { get; set; } = string.Empty;

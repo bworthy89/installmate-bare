@@ -11,6 +11,15 @@ public class Step
     public string StepId { get; set; } = string.Empty;
 
     /// <summary>
+    /// Alias for StepId (for compatibility).
+    /// </summary>
+    public string Id
+    {
+        get => StepId;
+        set => StepId = value;
+    }
+
+    /// <summary>
     /// Step title/heading.
     /// </summary>
     public string Title { get; set; } = string.Empty;
