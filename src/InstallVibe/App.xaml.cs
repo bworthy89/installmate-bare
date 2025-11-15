@@ -16,6 +16,7 @@ using InstallVibe.ViewModels.Admin;
 using InstallVibe.ViewModels.Dashboard;
 using InstallVibe.ViewModels.Guide;
 using InstallVibe.ViewModels.Settings;
+using InstallVibe.ViewModels.Shell;
 using InstallVibe.Views.Activation;
 using InstallVibe.Views.Admin;
 using InstallVibe.Views.Dashboard;
@@ -41,6 +42,11 @@ public partial class App : Application
     public new static App Current => (App)Application.Current;
 
     public IServiceProvider Services => _serviceProvider;
+
+    public static T GetService<T>() where T : class
+    {
+        return Current.Services.GetRequiredService<T>();
+    }
 
     public App()
     {
@@ -145,6 +151,7 @@ public partial class App : Application
         });
 
         // ViewModels
+        services.AddTransient<ShellViewModel>();
         services.AddTransient<ActivationViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<GuideListViewModel>();
