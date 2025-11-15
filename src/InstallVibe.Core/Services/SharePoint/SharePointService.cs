@@ -1075,8 +1075,8 @@ public class SharePointService : ISharePointService
             }
         };
 
-        await client.Drives[_mediaDriveId].Items[itemId].ListItem.Fields
-            .PatchAsync(fields);
+        await client.Drives[_mediaDriveId].Items[itemId].ListItem
+            .PatchAsync(new ListItem { Fields = fields });
     }
 
     private async Task IncrementActivationCountAsync(string itemId, int newCount)
