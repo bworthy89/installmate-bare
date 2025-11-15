@@ -394,8 +394,10 @@ public class GuideEngine : IGuideEngine
             {
                 var oldStepIds = oldGuide.Steps?.Select(s => s.StepId).ToHashSet() ?? new HashSet<string>();
                 var newStepIds = newGuide.Steps?.Select(s => s.StepId).ToHashSet() ?? new HashSet<string>();
-                
-                result.StepsChanged = oldStepIds.SymmetricExceptDifference(newStepIds).Count();
+
+                var symmetricDiff = new HashSet<string>(oldStepIds);
+                symmetricDiff.SymmetricExceptWith(newStepIds);
+                result.StepsChanged = symmetricDiff.Count;
             }
 
             _logger.LogInformation(
