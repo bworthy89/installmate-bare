@@ -35,9 +35,43 @@ public class Step
     public string Content { get; set; } = string.Empty;
 
     /// <summary>
+    /// Detailed instructions for this step.
+    /// </summary>
+    public string? Instructions { get; set; }
+
+    /// <summary>
     /// Media references (images, videos, documents) for this step.
     /// </summary>
     public List<MediaReference> MediaReferences { get; set; } = new();
+
+    /// <summary>
+    /// Alias for MediaReferences (for compatibility).
+    /// </summary>
+    public List<MediaReference> Media
+    {
+        get => MediaReferences;
+        set => MediaReferences = value;
+    }
+
+    /// <summary>
+    /// Verification checkpoints for this step.
+    /// </summary>
+    public List<Checkpoint> Checkpoints { get; set; } = new();
+
+    /// <summary>
+    /// Actions to perform in this step.
+    /// </summary>
+    public List<StepAction> Actions { get; set; } = new();
+
+    /// <summary>
+    /// Validation rules for step completion.
+    /// </summary>
+    public StepValidation? Validation { get; set; }
+
+    /// <summary>
+    /// Estimated duration for this step in minutes.
+    /// </summary>
+    public int? EstimatedDuration { get; set; }
 
     /// <summary>
     /// Optional notes or additional information.

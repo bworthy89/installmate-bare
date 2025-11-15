@@ -87,6 +87,11 @@ public class Guide
     public GuideMetadata Metadata { get; set; } = new();
 
     /// <summary>
+    /// Requirements for this guide.
+    /// </summary>
+    public Requirements? Requirements { get; set; }
+
+    /// <summary>
     /// Total number of steps.
     /// </summary>
     public int TotalSteps => Steps?.Count ?? 0;
