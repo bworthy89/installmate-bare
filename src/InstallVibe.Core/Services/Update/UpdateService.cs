@@ -99,13 +99,13 @@ public class UpdateService : IUpdateService
                             "Current version {Current} is below minimum required {Minimum} for update {Latest}",
                             currentVersion, manifest.MinimumVersion, manifest.Version);
 
-                        var result = UpdateCheckResult.Failed(
+                        var failureResult = UpdateCheckResult.Failed(
                             currentVersion,
                             $"Your version is too old. Please manually update to version {manifest.MinimumVersion} or higher first.");
 
-                        UpdateCache(result);
-                        UpdateCheckCompleted?.Invoke(this, result);
-                        return result;
+                        UpdateCache(failureResult);
+                        UpdateCheckCompleted?.Invoke(this, failureResult);
+                        return failureResult;
                     }
                 }
 
