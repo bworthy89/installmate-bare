@@ -1,0 +1,175 @@
+<UserControl
+    x:Class="InstallVibe.Controls.MediaCarouselControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <!-- Main Content -->
+        <Grid x:Name="MainCarousel">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Image Viewer with Zoom -->
+            <Border Grid.Row="0"
+                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <ScrollViewer x:Name="ImageScrollViewer"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              ZoomMode="Enabled"
+                              MinZoomFactor="0.5"
+                              MaxZoomFactor="5.0">
+                    <Image x:Name="MediaImage"
+                           Stretch="Uniform"
+                           ManipulationMode="All"
+                           PointerPressed="MediaImage_PointerPressed"
+                           DoubleTapped="MediaImage_DoubleTapped"/>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Controls and Navigation -->
+            <Grid Grid.Row="1" Margin="0,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Zoom Controls -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                    <Button Click="ZoomOut_Click"
+                            Width="40"
+                            Height="40"
+                            ToolTipService.ToolTip="Zoom out (-)">
+                        <SymbolIcon Symbol="ZoomOut"/>
+                    </Button>
+                    <TextBlock Text="{x:Bind ZoomPercentage, Mode=OneWay}"
+                               VerticalAlignment="Center"
+                               MinWidth="50"
+                               TextAlignment="Center"
+                               FontWeight="SemiBold"/>
+                    <Button Click="ZoomIn_Click"
+                            Width="40"
+                            Height="40"
+                            ToolTipService.ToolTip="Zoom in (+)">
+                        <SymbolIcon Symbol="ZoomIn"/>
+                    </Button>
+                    <Button Click="ResetZoom_Click"
+                            Width="40"
+                            Height="40"
+                            ToolTipService.ToolTip="Reset zoom (0)">
+                        <FontIcon Glyph="&#xE7C4;"/>
+                    </Button>
+                    <Button Click="FullScreen_Click"
+                            Width="40"
+                            Height="40"
+                            ToolTipService.ToolTip="Full screen (F)">
+                        <SymbolIcon Symbol="FullScreen"/>
+                    </Button>
+                </StackPanel>
+
+                <!-- Navigation Dots -->
+                <ItemsRepeater Grid.Column="1"
+                               x:Name="NavigationDots"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Orientation="Horizontal" Spacing="8"/>
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="8"
+                                    Height="8"
+                                    CornerRadius="4"
+                                    Background="{ThemeResource SystemAccentColor}"
+                                    Opacity="{Binding IsActive, Converter={StaticResource BoolToOpacityConverter}}"/>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <!-- Previous/Next Buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <Button x:Name="PreviousButton"
+                            Click="Previous_Click"
+                            Width="40"
+                            Height="40"
+                            ToolTipService.ToolTip="Previous (Left arrow)">
+                        <SymbolIcon Symbol="Previous"/>
+                    </Button>
+                    <TextBlock VerticalAlignment="Center"
+                               Margin="8,0">
+                        <Run Text="{x:Bind CurrentIndex, Mode=OneWay}"/>
+                        <Run Text="/"/>
+                        <Run Text="{x:Bind TotalCount, Mode=OneWay}"/>
+                    </TextBlock>
+                    <Button x:Name="NextButton"
+                            Click="Next_Click"
+                            Width="40"
+                            Height="40"
+                            ToolTipService.ToolTip="Next (Right arrow)">
+                        <SymbolIcon Symbol="Next"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- Full Screen Overlay -->
+        <Grid x:Name="FullScreenOverlay"
+              Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+              Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Close Button -->
+            <Button Grid.Row="0"
+                    Click="CloseFullScreen_Click"
+                    HorizontalAlignment="Right"
+                    Margin="24"
+                    Width="48"
+                    Height="48"
+                    ToolTipService.ToolTip="Exit full screen (Esc)">
+                <SymbolIcon Symbol="Cancel"/>
+            </Button>
+
+            <!-- Full Screen Image -->
+            <ScrollViewer Grid.Row="1"
+                          x:Name="FullScreenScrollViewer"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto"
+                          ZoomMode="Enabled"
+                          MinZoomFactor="0.5"
+                          MaxZoomFactor="5.0">
+                <Image x:Name="FullScreenImage"
+                       Stretch="Uniform"
+                       DoubleTapped="FullScreenImage_DoubleTapped"/>
+            </ScrollViewer>
+
+            <!-- Full Screen Controls -->
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="16"
+                        Margin="24">
+                <Button Click="ZoomOut_Click" Width="48" Height="48">
+                    <SymbolIcon Symbol="ZoomOut"/>
+                </Button>
+                <Button Click="ResetZoom_Click" Width="48" Height="48">
+                    <FontIcon Glyph="&#xE7C4;"/>
+                </Button>
+                <Button Click="ZoomIn_Click" Width="48" Height="48">
+                    <SymbolIcon Symbol="ZoomIn"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
