@@ -1,4 +1,3 @@
-using InstallVibe.Core.Contracts;
 using InstallVibe.Core.Services.Activation;
 using InstallVibe.Core.Services.Cache;
 using InstallVibe.Core.Services.Data;
