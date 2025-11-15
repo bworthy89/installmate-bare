@@ -1,6 +1,6 @@
 using InstallVibe.Core.Models.Activation;
-using InstallVibe.Infrastructure.Security.Cryptography;
-using InstallVibe.Infrastructure.Device;
+using InstallVibe.Core.Interfaces.Security;
+using InstallVibe.Core.Interfaces.Device;
 using System.Text.Json;
 
 namespace InstallVibe.Core.Services.Activation;

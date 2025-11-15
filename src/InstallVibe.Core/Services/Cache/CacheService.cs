@@ -1,7 +1,7 @@
 using InstallVibe.Core.Models.Cache;
 using InstallVibe.Data.Context;
-using InstallVibe.Infrastructure.Security.Cryptography;
-using InstallVibe.Infrastructure.Constants;
+using InstallVibe.Core.Interfaces.Security;
+using InstallVibe.Core.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

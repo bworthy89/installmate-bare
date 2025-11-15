@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using InstallVibe.Core.Interfaces.Security;
 
 namespace InstallVibe.Infrastructure.Security.Cryptography;
 
@@ -35,9 +36,13 @@ public class HashService : IHashService
             for (int i = 0; i < 8; i++)
             {
                 if ((crc & 0x0001) != 0)
+                {
                     crc = (ushort)((crc >> 1) ^ polynomial);
+                }
                 else
-                    crc = (ushort)(crc >> 1);
+                {
+                    crc >>= 1;
+                }
             }
         }
 
@@ -47,7 +52,7 @@ public class HashService : IHashService
     /// <inheritdoc/>
     public bool VerifyCrc16(byte[] data, ushort expectedChecksum)
     {
-        var computed = ComputeCrc16(data);
-        return computed == expectedChecksum;
+        var actualChecksum = ComputeCrc16(data);
+        return actualChecksum == expectedChecksum;
     }
 }

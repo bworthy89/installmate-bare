@@ -1,4 +1,5 @@
 using Azure.Identity;
+using InstallVibe.Core.Interfaces.Security;
 using InstallVibe.Infrastructure.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;

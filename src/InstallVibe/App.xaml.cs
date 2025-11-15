@@ -1,3 +1,6 @@
+using InstallVibe.Core.Configuration;
+using InstallVibe.Core.Interfaces.Device;
+using InstallVibe.Core.Interfaces.Security;
 using InstallVibe.Core.Services.Activation;
 using InstallVibe.Core.Services.Cache;
 using InstallVibe.Core.Services.Data;
@@ -7,7 +10,6 @@ using InstallVibe.Core.Services.Media;
 using InstallVibe.Core.Services.SharePoint;
 using InstallVibe.Core.Services.Update;
 using InstallVibe.Data.Context;
-using InstallVibe.Infrastructure.Configuration;
 using InstallVibe.Infrastructure.Device;
 using InstallVibe.Infrastructure.Security.Cryptography;
 using InstallVibe.Infrastructure.Security.Encryption;

@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using InstallVibe.Core.Interfaces.Security;
 
 namespace InstallVibe.Infrastructure.Security.Cryptography;
 

@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using InstallVibe.Core.Interfaces.Device;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
