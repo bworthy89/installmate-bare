@@ -1,0 +1,36 @@
+{
+  "version": "1.2.0",
+  "releaseDate": "2025-01-15T10:30:00Z",
+  "updateType": "recommended",
+  "appInstallerUrl": "https://yourtenant.sharepoint.com/sites/InstallVibe/AppUpdates/InstallVibe/InstallVibe.appinstaller",
+  "msixPackageUrl": "https://yourtenant.sharepoint.com/sites/InstallVibe/AppUpdates/InstallVibe/1.2.0/InstallVibe_1.2.0.msix",
+  "fileHash": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+  "fileSize": 52428800,
+  "minimumVersion": "1.0.0",
+  "releaseNotes": "## What's New in 1.2.0\n\n### Features\n- Added offline guide caching for field technicians\n- Implemented automatic sync when online\n\n### Improvements\n- Improved application startup performance by 40%\n- Enhanced UI responsiveness\n- Better error handling for network failures\n\n### Bug Fixes\n- Fixed authentication token expiration handling\n- Resolved sync errors with large guides\n- Fixed UI layout issues on 4K displays\n\n### Security\n- Updated cryptography libraries to latest versions\n- Enhanced data encryption",
+  "requiresRestart": true,
+  "isMandatory": false,
+  "releaseNotesUrl": "https://yourtenant.sharepoint.com/sites/InstallVibe/AppUpdates/InstallVibe/1.2.0/release-notes-1.2.0.md",
+  "changes": [
+    {
+      "type": "feature",
+      "description": "Added offline guide caching for field technicians",
+      "issueNumber": "IV-123"
+    },
+    {
+      "type": "improvement",
+      "description": "Improved application startup performance by 40%",
+      "issueNumber": "IV-145"
+    },
+    {
+      "type": "bugfix",
+      "description": "Fixed authentication token expiration handling",
+      "issueNumber": "IV-167"
+    },
+    {
+      "type": "security",
+      "description": "Updated cryptography libraries to latest versions",
+      "issueNumber": "IV-189"
+    }
+  ]
+}

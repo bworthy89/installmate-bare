@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppInstaller
+    xmlns="http://schemas.microsoft.com/appx/appinstaller/2021"
+    Version="1.2.0.0"
+    Uri="https://yourtenant.sharepoint.com/sites/InstallVibe/AppUpdates/InstallVibe/InstallVibe.appinstaller">
+
+    <!-- Use MainPackage for single architecture MSIX -->
+    <MainPackage
+        Name="InstallVibe"
+        Publisher="CN=YourCompany"
+        Version="1.2.0.0"
+        ProcessorArchitecture="x64"
+        Uri="https://yourtenant.sharepoint.com/sites/InstallVibe/AppUpdates/InstallVibe/1.2.0/InstallVibe_1.2.0.msix" />
+
+    <!-- OR use MainBundle for multi-architecture MSIX bundle -->
+    <!--
+    <MainBundle
+        Name="InstallVibe"
+        Publisher="CN=YourCompany"
+        Version="1.2.0.0"
+        Uri="https://yourtenant.sharepoint.com/sites/InstallVibe/AppUpdates/InstallVibe/1.2.0/InstallVibe_1.2.0.msixbundle" />
+    -->
+
+    <!-- Update Settings -->
+    <UpdateSettings>
+        <!-- Check for updates on launch, every 12 hours -->
+        <OnLaunch
+            HoursBetweenUpdateChecks="12"
+            ShowPrompt="true"
+            UpdateBlocksActivation="false" />
+
+        <!-- Enable automatic background update checks -->
+        <AutomaticBackgroundTask />
+
+        <!-- Allow updates from any version (disable for major version restrictions) -->
+        <ForceUpdateFromAnyVersion>false</ForceUpdateFromAnyVersion>
+    </UpdateSettings>
+
+    <!-- Optional Dependencies (e.g., frameworks, optional packages) -->
+    <!--
+    <Dependencies>
+        <Package Name="Microsoft.VCLibs.140.00.UWPDesktop" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" ProcessorArchitecture="x64" Uri="https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx" Version="14.0.30704.0" />
+    </Dependencies>
+    -->
+
+</AppInstaller>

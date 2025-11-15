@@ -5,6 +5,7 @@ using InstallVibe.Core.Services.Editor;
 using InstallVibe.Core.Services.Engine;
 using InstallVibe.Core.Services.Media;
 using InstallVibe.Core.Services.SharePoint;
+using InstallVibe.Core.Services.Update;
 using InstallVibe.Data.Context;
 using InstallVibe.Infrastructure.Configuration;
 using InstallVibe.Infrastructure.Device;
@@ -105,9 +106,17 @@ public partial class App : Application
         });
 
         // Configuration
+        services.AddSingleton(configuration);
         var sharePointConfig = configuration.GetSection("SharePoint").Get<SharePointConfiguration>()
             ?? new SharePointConfiguration();
         services.AddSingleton(sharePointConfig);
+
+        // HttpClient for update service
+        services.AddHttpClient("UpdateClient", client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(10);
+            client.DefaultRequestHeaders.Add("User-Agent", "InstallVibe-UpdateClient/1.0");
+        });
 
         // Database
         var dbPath = Path.Combine(
@@ -141,6 +150,9 @@ public partial class App : Application
         // Editor Services
         services.AddScoped<IGuideEditorService, GuideEditorService>();
         services.AddScoped<IMediaUploadService, MediaUploadService>();
+
+        // Update Service
+        services.AddSingleton<IUpdateService, UpdateService>();
 
         // UI Services
         services.AddSingleton<INavigationService>(sp =>
