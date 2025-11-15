@@ -1,9 +1,20 @@
-// Placeholder for ShellPage.xaml.cs
-// Main navigation shell with NavigationView
+using Microsoft.UI.Xaml.Controls;
+using InstallVibe.ViewModels.Shell;
 
 namespace InstallVibe.Views.Shell;
 
+/// <summary>
+/// Main navigation shell with NavigationView
+/// </summary>
 public sealed partial class ShellPage : Page
 {
-    // TODO: Implement ShellPage
+    public ShellViewModel ViewModel { get; }
+
+    public ShellPage()
+    {
+        // Get ViewModel from DI container
+        ViewModel = App.GetService<ShellViewModel>();
+        InitializeComponent();
+        DataContext = ViewModel;
+    }
 }

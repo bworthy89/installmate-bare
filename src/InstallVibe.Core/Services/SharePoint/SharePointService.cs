@@ -603,20 +603,64 @@ public class SharePointService : ISharePointService
             if (items?.Value?.Count > 0)
             {
                 var item = items.Value[0];
-                var fields = item.AdditionalData["fields"] as IDictionary<string, object>;
+
+                // Safely extract fields dictionary
+                if (!item.AdditionalData.TryGetValue("fields", out var fieldsObj) ||
+                    fieldsObj is not IDictionary<string, object> fields)
+                {
+                    _logger.LogWarning("Product key validation failed: Unable to extract fields from SharePoint item");
+                    return result;
+                }
 
                 result.IsValid = true;
                 result.WasOnlineValidation = true;
-                result.LicenseType = Enum.Parse<LicenseType>(fields?["LicenseType"]?.ToString() ?? "Tech");
-                result.CustomerId = fields?["CustomerId"]?.ToString();
-                
-                if (fields?.ContainsKey("ExpirationDate") == true && fields["ExpirationDate"] != null)
+
+                // Parse LicenseType with error handling
+                try
                 {
-                    result.ExpirationDate = DateTime.Parse(fields["ExpirationDate"].ToString()!);
+                    result.LicenseType = fields.TryGetValue("LicenseType", out var licenseTypeValue)
+                        ? Enum.Parse<LicenseType>(licenseTypeValue?.ToString() ?? "Tech", ignoreCase: true)
+                        : LicenseType.Tech;
+                }
+                catch (ArgumentException ex)
+                {
+                    _logger.LogWarning(ex, "Invalid license type in SharePoint, defaulting to Tech");
+                    result.LicenseType = LicenseType.Tech;
                 }
 
-                result.ActivationCount = int.Parse(fields?["ActivationCount"]?.ToString() ?? "0");
-                result.MaxActivations = int.Parse(fields?["MaxActivations"]?.ToString() ?? "5");
+                result.CustomerId = fields.TryGetValue("CustomerId", out var customerIdValue)
+                    ? customerIdValue?.ToString()
+                    : null;
+
+                // Parse ExpirationDate with error handling
+                if (fields.TryGetValue("ExpirationDate", out var expirationValue) && expirationValue != null)
+                {
+                    try
+                    {
+                        result.ExpirationDate = DateTime.Parse(expirationValue.ToString()!);
+                    }
+                    catch (FormatException ex)
+                    {
+                        _logger.LogWarning(ex, "Invalid expiration date format in SharePoint: {Value}", expirationValue);
+                    }
+                }
+
+                // Parse activation counts with error handling
+                try
+                {
+                    result.ActivationCount = fields.TryGetValue("ActivationCount", out var activationCountValue)
+                        ? int.Parse(activationCountValue?.ToString() ?? "0")
+                        : 0;
+                    result.MaxActivations = fields.TryGetValue("MaxActivations", out var maxActivationsValue)
+                        ? int.Parse(maxActivationsValue?.ToString() ?? "5")
+                        : 5;
+                }
+                catch (FormatException ex)
+                {
+                    _logger.LogWarning(ex, "Invalid activation count format in SharePoint, using defaults");
+                    result.ActivationCount = 0;
+                    result.MaxActivations = 5;
+                }
 
                 // Increment activation count
                 if (result.ActivationCount < result.MaxActivations)
@@ -779,36 +823,77 @@ public class SharePointService : ISharePointService
 
     private GuideIndexEntry MapListItemToGuideIndexEntry(ListItem item)
     {
-        var fields = item.AdditionalData["fields"] as IDictionary<string, object>;
+        // Safely extract fields dictionary
+        if (!item.AdditionalData.TryGetValue("fields", out var fieldsObj) ||
+            fieldsObj is not IDictionary<string, object> fields)
+        {
+            throw new InvalidOperationException("Unable to extract fields from SharePoint list item");
+        }
 
         var entry = new GuideIndexEntry
         {
-            GuideId = fields?["GuideId"]?.ToString() ?? string.Empty,
-            Title = fields?["Title"]?.ToString() ?? string.Empty,
-            Version = fields?["Version"]?.ToString() ?? string.Empty,
-            Category = fields?["Category"]?.ToString() ?? string.Empty,
-            Description = fields?["Description"]?.ToString(),
-            RequiredLicense = Enum.Parse<LicenseType>(fields?["RequiredLicense"]?.ToString() ?? "Tech"),
-            Published = bool.Parse(fields?["Published"]?.ToString() ?? "false"),
-            LastModified = DateTime.Parse(fields?["LastModified"]?.ToString() ?? DateTime.UtcNow.ToString()),
-            Author = fields?["Author"]?.ToString(),
-            ApprovedBy = fields?["ApprovedBy"]?.ToString(),
-            StepCount = int.Parse(fields?["StepCount"]?.ToString() ?? "0"),
-            EstimatedMinutes = fields?.ContainsKey("EstimatedMinutes") == true 
-                ? int.Parse(fields["EstimatedMinutes"]?.ToString() ?? "0") 
-                : null,
-            Checksum = fields?["Checksum"]?.ToString() ?? string.Empty,
-            FileSize = long.Parse(fields?["FileSize"]?.ToString() ?? "0"),
-            FolderPath = fields?["FolderPath"]?.ToString() ?? string.Empty,
-            MediaCount = int.Parse(fields?["MediaCount"]?.ToString() ?? "0"),
-            SyncPriority = fields?["SyncPriority"]?.ToString(),
-            MinClientVersion = fields?["MinClientVersion"]?.ToString()
+            GuideId = fields.TryGetValue("GuideId", out var guideId) ? guideId?.ToString() ?? string.Empty : string.Empty,
+            Title = fields.TryGetValue("Title", out var title) ? title?.ToString() ?? string.Empty : string.Empty,
+            Version = fields.TryGetValue("Version", out var version) ? version?.ToString() ?? string.Empty : string.Empty,
+            Category = fields.TryGetValue("Category", out var category) ? category?.ToString() ?? string.Empty : string.Empty,
+            Description = fields.TryGetValue("Description", out var description) ? description?.ToString() : null,
+            Author = fields.TryGetValue("Author", out var author) ? author?.ToString() : null,
+            ApprovedBy = fields.TryGetValue("ApprovedBy", out var approvedBy) ? approvedBy?.ToString() : null,
+            Checksum = fields.TryGetValue("Checksum", out var checksum) ? checksum?.ToString() ?? string.Empty : string.Empty,
+            FolderPath = fields.TryGetValue("FolderPath", out var folderPath) ? folderPath?.ToString() ?? string.Empty : string.Empty,
+            SyncPriority = fields.TryGetValue("SyncPriority", out var syncPriority) ? syncPriority?.ToString() : null,
+            MinClientVersion = fields.TryGetValue("MinClientVersion", out var minClientVersion) ? minClientVersion?.ToString() : null
         };
 
-        // Parse tags
-        if (fields?.ContainsKey("Tags") == true)
+        // Parse RequiredLicense with error handling
+        try
         {
-            var tagsStr = fields["Tags"]?.ToString();
+            entry.RequiredLicense = fields.TryGetValue("RequiredLicense", out var requiredLicense)
+                ? Enum.Parse<LicenseType>(requiredLicense?.ToString() ?? "Tech", ignoreCase: true)
+                : LicenseType.Tech;
+        }
+        catch (ArgumentException)
+        {
+            entry.RequiredLicense = LicenseType.Tech;
+        }
+
+        // Parse Published with error handling
+        entry.Published = fields.TryGetValue("Published", out var published) &&
+                          bool.TryParse(published?.ToString(), out var publishedValue) &&
+                          publishedValue;
+
+        // Parse LastModified with error handling
+        if (fields.TryGetValue("LastModified", out var lastModified) &&
+            DateTime.TryParse(lastModified?.ToString(), out var lastModifiedValue))
+        {
+            entry.LastModified = lastModifiedValue;
+        }
+        else
+        {
+            entry.LastModified = DateTime.UtcNow;
+        }
+
+        // Parse integer fields with error handling
+        entry.StepCount = fields.TryGetValue("StepCount", out var stepCount) &&
+                          int.TryParse(stepCount?.ToString(), out var stepCountValue)
+                          ? stepCountValue : 0;
+
+        entry.EstimatedMinutes = fields.TryGetValue("EstimatedMinutes", out var estimatedMinutes) &&
+                                 int.TryParse(estimatedMinutes?.ToString(), out var estimatedMinutesValue)
+                                 ? estimatedMinutesValue : null;
+
+        entry.FileSize = fields.TryGetValue("FileSize", out var fileSize) &&
+                         long.TryParse(fileSize?.ToString(), out var fileSizeValue)
+                         ? fileSizeValue : 0;
+
+        entry.MediaCount = fields.TryGetValue("MediaCount", out var mediaCount) &&
+                           int.TryParse(mediaCount?.ToString(), out var mediaCountValue)
+                           ? mediaCountValue : 0;
+
+        // Parse tags
+        if (fields.TryGetValue("Tags", out var tags))
+        {
+            var tagsStr = tags?.ToString();
             if (!string.IsNullOrEmpty(tagsStr))
             {
                 entry.Tags = tagsStr.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
@@ -820,29 +905,48 @@ public class SharePointService : ISharePointService
 
     private SharePointMedia MapDriveItemToMedia(DriveItem item)
     {
-        var fields = item.AdditionalData.ContainsKey("fields") 
-            ? item.AdditionalData["fields"] as IDictionary<string, object>
-            : new Dictionary<string, object>();
+        // Safely extract fields dictionary
+        IDictionary<string, object> fields;
+        if (item.AdditionalData.TryGetValue("fields", out var fieldsObj) &&
+            fieldsObj is IDictionary<string, object> fieldsDict)
+        {
+            fields = fieldsDict;
+        }
+        else
+        {
+            fields = new Dictionary<string, object>();
+        }
 
         var media = new SharePointMedia
         {
-            MediaId = fields?["MediaId"]?.ToString() ?? string.Empty,
-            MediaType = Enum.Parse<MediaType>(fields?["MediaType"]?.ToString() ?? "Image"),
-            FileFormat = fields?["FileFormat"]?.ToString() ?? string.Empty,
+            MediaId = fields.TryGetValue("MediaId", out var mediaId) ? mediaId?.ToString() ?? string.Empty : string.Empty,
+            FileFormat = fields.TryGetValue("FileFormat", out var fileFormat) ? fileFormat?.ToString() ?? string.Empty : string.Empty,
             FileSizeBytes = item.Size ?? 0,
-            Checksum = fields?["Checksum"]?.ToString() ?? string.Empty,
-            UploadedBy = fields?["UploadedBy"]?.ToString(),
+            Checksum = fields.TryGetValue("Checksum", out var checksum) ? checksum?.ToString() ?? string.Empty : string.Empty,
+            UploadedBy = fields.TryGetValue("UploadedBy", out var uploadedBy) ? uploadedBy?.ToString() : null,
             UploadDate = item.CreatedDateTime?.DateTime ?? DateTime.UtcNow,
-            DownloadUrl = item.AdditionalData.ContainsKey("@microsoft.graph.downloadUrl")
-                ? item.AdditionalData["@microsoft.graph.downloadUrl"]?.ToString()
+            DownloadUrl = item.AdditionalData.TryGetValue("@microsoft.graph.downloadUrl", out var downloadUrl)
+                ? downloadUrl?.ToString()
                 : null,
-            SharePointItemId = item.Id
+            SharePointItemId = item.Id ?? throw new InvalidOperationException("DriveItem missing required Id")
         };
 
-        // Parse referenced guides
-        if (fields?.ContainsKey("ReferencedByGuides") == true)
+        // Parse MediaType with error handling
+        try
         {
-            var guidesStr = fields["ReferencedByGuides"]?.ToString();
+            media.MediaType = fields.TryGetValue("MediaType", out var mediaType)
+                ? Enum.Parse<MediaType>(mediaType?.ToString() ?? "Image", ignoreCase: true)
+                : MediaType.Image;
+        }
+        catch (ArgumentException)
+        {
+            media.MediaType = MediaType.Image;
+        }
+
+        // Parse referenced guides
+        if (fields.TryGetValue("ReferencedByGuides", out var referencedByGuides))
+        {
+            var guidesStr = referencedByGuides?.ToString();
             if (!string.IsNullOrEmpty(guidesStr))
             {
                 media.ReferencedByGuides = guidesStr.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
@@ -974,6 +1078,12 @@ public class SharePointService : ISharePointService
 
     private async Task IncrementActivationCountAsync(string itemId, int newCount)
     {
+        if (string.IsNullOrEmpty(_configuration.ProductKeysListId))
+        {
+            _logger.LogWarning("Cannot increment activation count: ProductKeysListId is not configured");
+            return;
+        }
+
         var client = _graphClientFactory.CreateClient();
 
         var fields = new FieldValueSet

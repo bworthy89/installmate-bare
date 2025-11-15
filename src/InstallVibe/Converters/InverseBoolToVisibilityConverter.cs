@@ -5,27 +5,27 @@ using System;
 namespace InstallVibe.Converters;
 
 /// <summary>
-/// Converter that converts boolean to Visibility (true = Visible, false = Collapsed)
+/// Converter that converts boolean to inverted Visibility (true = Collapsed, false = Visible)
 /// </summary>
-public class BoolToVisibilityConverter : IValueConverter
+public class InverseBoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         if (value is bool boolValue)
         {
-            return boolValue ? Visibility.Visible : Visibility.Collapsed;
+            return boolValue ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        return Visibility.Collapsed;
+        return Visibility.Visible;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
         if (value is Visibility visibility)
         {
-            return visibility == Visibility.Visible;
+            return visibility == Visibility.Collapsed;
         }
 
-        return false;
+        return true;
     }
 }

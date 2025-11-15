@@ -273,8 +273,8 @@ public class MediaService : IMediaService
             // Count by type (based on file format)
             foreach (var media in mediaCache)
             {
-                var format = media.FileFormat?.ToLowerInvariant() ?? "";
-                
+                var format = media.FileType?.ToLowerInvariant() ?? "";
+
                 if (IsImageFormat(format))
                     stats.ImageCount++;
                 else if (IsVideoFormat(format))
