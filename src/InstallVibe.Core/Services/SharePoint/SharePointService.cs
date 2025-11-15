@@ -1065,6 +1065,15 @@ public class SharePointService : ISharePointService
     {
         var client = _graphClientFactory.CreateClient();
 
+        // Get drive item to extract SharePoint IDs
+        var driveItem = await client.Drives[_mediaDriveId].Items[itemId].GetAsync();
+
+        if (driveItem?.SharepointIds?.ListId == null || driveItem?.SharepointIds?.ListItemId == null)
+        {
+            _logger.LogWarning("Cannot update media metadata: SharePoint IDs not available for item {ItemId}", itemId);
+            return;
+        }
+
         var fields = new FieldValueSet
         {
             AdditionalData = new Dictionary<string, object>
@@ -1075,7 +1084,8 @@ public class SharePointService : ISharePointService
             }
         };
 
-        await client.Drives[_mediaDriveId].Items[itemId].ListItem
+        // Update via Lists API
+        await client.Sites[_siteId].Lists[driveItem.SharepointIds.ListId].Items[driveItem.SharepointIds.ListItemId]
             .PatchAsync(new ListItem { Fields = fields });
     }
 
