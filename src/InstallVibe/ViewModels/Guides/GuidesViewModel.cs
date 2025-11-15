@@ -36,6 +36,24 @@ public partial class GuidesViewModel : ObservableObject
     [ObservableProperty]
     private Guide? _selectedGuide;
 
+    [ObservableProperty]
+    private bool _hasLastGuide = false;
+
+    [ObservableProperty]
+    private string _lastGuideTitle = string.Empty;
+
+    [ObservableProperty]
+    private int _lastGuideStep = 0;
+
+    [ObservableProperty]
+    private int _lastGuideTotalSteps = 0;
+
+    [ObservableProperty]
+    private double _lastGuideProgress = 0.0;
+
+    private string _currentCategory = string.Empty;
+    private string _currentSortType = "TitleAsc";
+
     public GuidesViewModel(IGuideService guideService, INavigationService navigationService)
     {
         _guideService = guideService ?? throw new ArgumentNullException(nameof(guideService));
@@ -45,6 +63,21 @@ public partial class GuidesViewModel : ObservableObject
     public async Task InitializeAsync()
     {
         await LoadGuidesAsync();
+        await LoadLastGuideAsync();
+    }
+
+    private async Task LoadLastGuideAsync()
+    {
+        try
+        {
+            // TODO: Load last guide from progress service
+            // For now, just set to false
+            HasLastGuide = false;
+        }
+        catch
+        {
+            HasLastGuide = false;
+        }
     }
 
     [RelayCommand]
@@ -98,15 +131,59 @@ public partial class GuidesViewModel : ObservableObject
         ApplyFilter();
     }
 
+    [RelayCommand]
+    private void ResumeLastGuide()
+    {
+        // TODO: Navigate to last guide with progress
+        // For now, just open the first guide if available
+        if (Guides.Any())
+        {
+            OpenGuide(Guides.First());
+        }
+    }
+
+    public void FilterByCategory(string category)
+    {
+        _currentCategory = category;
+        ApplyFilter();
+    }
+
+    public void SortBy(string sortType)
+    {
+        _currentSortType = sortType;
+        ApplyFilter();
+    }
+
     private void ApplyFilter()
     {
         FilteredGuides.Clear();
 
-        var filtered = string.IsNullOrWhiteSpace(SearchText)
-            ? Guides
-            : Guides.Where(g =>
+        var filtered = Guides.AsEnumerable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            filtered = filtered.Where(g =>
                 g.Metadata.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 (g.Metadata.Description?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+        // Apply category filter
+        if (!string.IsNullOrWhiteSpace(_currentCategory))
+        {
+            filtered = filtered.Where(g =>
+                g.Metadata.Category?.Equals(_currentCategory, StringComparison.OrdinalIgnoreCase) ?? false);
+        }
+
+        // Apply sorting
+        filtered = _currentSortType switch
+        {
+            "TitleAsc" => filtered.OrderBy(g => g.Metadata.Title),
+            "TitleDesc" => filtered.OrderByDescending(g => g.Metadata.Title),
+            "Updated" => filtered.OrderByDescending(g => g.Metadata.LastModified),
+            "Popular" => filtered.OrderByDescending(g => g.Metadata.UsageCount),
+            _ => filtered.OrderBy(g => g.Metadata.Title)
+        };
 
         foreach (var guide in filtered)
         {
