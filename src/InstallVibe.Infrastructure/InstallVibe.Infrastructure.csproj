@@ -12,5 +12,6 @@
     <PackageReference Include="Serilog.Sinks.Debug" />
     <PackageReference Include="Serilog.Extensions.Logging" />
     <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="System.Management" />
   </ItemGroup>
 </Project>
