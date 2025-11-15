@@ -48,8 +48,7 @@
                          IsClosable="True"/>
 
                 <!-- Activate Button -->
-                <Button Content="Activate"
-                        Command="{x:Bind ViewModel.ActivateCommand}"
+                <Button Command="{x:Bind ViewModel.ActivateCommand}"
                         Style="{StaticResource AccentButtonStyle}"
                         HorizontalAlignment="Stretch"
                         IsEnabled="{x:Bind ViewModel.IsActivating, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
@@ -100,8 +99,7 @@
                 </StackPanel>
 
                 <!-- Deactivate Button -->
-                <Button Content="Deactivate"
-                        Command="{x:Bind ViewModel.DeactivateCommand}"
+                <Button Command="{x:Bind ViewModel.DeactivateCommand}"
                         HorizontalAlignment="Stretch"
                         Margin="0,16,0,0">
                     <Button.Content>
