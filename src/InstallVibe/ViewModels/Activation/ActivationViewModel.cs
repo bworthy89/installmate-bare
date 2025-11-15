@@ -2,15 +2,19 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using InstallVibe.Core.Services.Activation;
 using InstallVibe.Core.Models.Activation;
+using InstallVibe.Services.Navigation;
+using Microsoft.Extensions.Logging;
 
 namespace InstallVibe.ViewModels.Activation;
 
 /// <summary>
-/// ViewModel for the product key activation page.
+/// ViewModel for the product key activation page (setup wizard step 2).
 /// </summary>
 public partial class ActivationViewModel : ObservableObject
 {
     private readonly IActivationService _activationService;
+    private readonly INavigationService _navigationService;
+    private readonly ILogger<ActivationViewModel> _logger;
 
     [ObservableProperty]
     private string _productKey = string.Empty;
@@ -27,9 +31,14 @@ public partial class ActivationViewModel : ObservableObject
     [ObservableProperty]
     private string _licenseInfo = string.Empty;
 
-    public ActivationViewModel(IActivationService activationService)
+    public ActivationViewModel(
+        IActivationService activationService,
+        INavigationService navigationService,
+        ILogger<ActivationViewModel> logger)
     {
         _activationService = activationService ?? throw new ArgumentNullException(nameof(activationService));
+        _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ = CheckActivationStatusAsync();
     }
 
@@ -40,7 +49,7 @@ public partial class ActivationViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(ProductKey))
         {
-            ErrorMessage = "Please enter a product key";
+            ErrorMessage = "Please enter a license key";
             return;
         }
 
@@ -55,15 +64,22 @@ public partial class ActivationViewModel : ObservableObject
                 IsActivated = true;
                 UpdateLicenseInfo(result.Token);
                 ProductKey = string.Empty; // Clear the key from display
+
+                _logger.LogInformation("Setup completed successfully - navigating to Dashboard");
+
+                // Show success message briefly, then navigate to Dashboard
+                await Task.Delay(2000);
+                _navigationService.NavigateTo("Dashboard");
             }
             else
             {
-                ErrorMessage = result.ErrorMessage ?? "Activation failed";
+                ErrorMessage = result.ErrorMessage ?? "Setup failed. Please check your license key and try again.";
             }
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Activation error: {ex.Message}";
+            _logger.LogError(ex, "Setup failed with exception");
+            ErrorMessage = $"Setup error: {ex.Message}";
         }
         finally
         {

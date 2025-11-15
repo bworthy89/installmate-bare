@@ -9,20 +9,33 @@
     <Grid Padding="40">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Step Indicator -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="Step 2 of 2"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       HorizontalAlignment="Center"/>
+            <!-- Progress Bar -->
+            <ProgressBar Value="100" Maximum="100" Margin="0,8,0,0"/>
+        </StackPanel>
+
         <!-- Header -->
-        <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,32">
-            <TextBlock Text="InstallVibe Activation"
-                       Style="{StaticResource TitleTextBlockStyle}"/>
-            <TextBlock Text="Enter your product key to activate InstallVibe"
+        <StackPanel Grid.Row="1" Spacing="8" Margin="0,0,0,32">
+            <TextBlock Text="Complete Your Installation"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="Enter your product key to complete setup"
                        Style="{StaticResource BodyTextBlockStyle}"
-                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       HorizontalAlignment="Center"/>
         </StackPanel>
 
         <!-- Content -->
-        <StackPanel Grid.Row="1"
+        <StackPanel Grid.Row="2"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Top"
                     MaxWidth="500"
@@ -33,7 +46,7 @@
 
                 <!-- Product Key Input -->
                 <TextBox x:Name="ProductKeyTextBox"
-                         Header="Product Key"
+                         Header="License Key"
                          PlaceholderText="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
                          Text="{x:Bind ViewModel.ProductKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          MaxLength="29"
@@ -47,7 +60,7 @@
                          Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
                          IsClosable="True"/>
 
-                <!-- Activate Button -->
+                <!-- Complete Setup Button -->
                 <Button Command="{x:Bind ViewModel.ActivateCommand}"
                         Style="{StaticResource AccentButtonStyle}"
                         HorizontalAlignment="Stretch"
@@ -57,7 +70,7 @@
                             <ProgressRing IsActive="{x:Bind ViewModel.IsActivating, Mode=OneWay}"
                                           Width="16" Height="16"
                                           Visibility="{x:Bind ViewModel.IsActivating, Mode=OneWay}"/>
-                            <TextBlock Text="{x:Bind ViewModel.IsActivating, Mode=OneWay, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Activating...|Activate'}"/>
+                            <TextBlock Text="{x:Bind ViewModel.IsActivating, Mode=OneWay, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Completing Setup...|Complete Setup'}"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
@@ -78,37 +91,31 @@
                 </StackPanel>
             </StackPanel>
 
-            <!-- Activated View -->
+            <!-- Installation Complete View -->
             <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.IsActivated, Mode=OneWay}">
 
                 <!-- Success Icon -->
                 <FontIcon Glyph="&#xE73E;"
-                          FontSize="48"
+                          FontSize="64"
                           Foreground="{ThemeResource SystemFillColorSuccessBrush}"
                           HorizontalAlignment="Center"/>
 
-                <!-- License Info -->
+                <!-- Success Message -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="InstallVibe is Activated"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Installation Complete!"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               HorizontalAlignment="Center"
+                               Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
                     <TextBlock Text="{x:Bind ViewModel.LicenseInfo, Mode=OneWay}"
                                Style="{StaticResource BodyTextBlockStyle}"
                                HorizontalAlignment="Center"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="Starting InstallVibe..."
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               HorizontalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Margin="0,8,0,0"/>
                 </StackPanel>
-
-                <!-- Deactivate Button -->
-                <Button Command="{x:Bind ViewModel.DeactivateCommand}"
-                        HorizontalAlignment="Stretch"
-                        Margin="0,16,0,0">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE7E8;" FontSize="16"/>
-                            <TextBlock Text="Deactivate"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
             </StackPanel>
 
         </StackPanel>

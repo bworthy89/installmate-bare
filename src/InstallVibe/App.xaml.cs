@@ -15,12 +15,14 @@ using InstallVibe.ViewModels.Admin;
 using InstallVibe.ViewModels.Dashboard;
 using InstallVibe.ViewModels.Guides;
 using InstallVibe.ViewModels.Settings;
+using InstallVibe.ViewModels.Setup;
 using InstallVibe.ViewModels.Shell;
 using InstallVibe.Views.Activation;
 using InstallVibe.Views.Admin;
 using InstallVibe.Views.Dashboard;
 using InstallVibe.Views.Guides;
 using InstallVibe.Views.Settings;
+using InstallVibe.Views.Setup;
 using InstallVibe.Views.Shell;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -73,9 +75,35 @@ public partial class App : Application
         Log.Information("InstallVibe application starting...");
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         _window = _serviceProvider.GetRequiredService<MainWindow>();
+
+        // Check activation status and navigate accordingly
+        var activationService = _serviceProvider.GetRequiredService<IActivationService>();
+        var navigationService = _serviceProvider.GetRequiredService<INavigationService>();
+
+        try
+        {
+            var licenseInfo = await activationService.GetLicenseInfoAsync();
+
+            if (licenseInfo.IsActivated)
+            {
+                Log.Information("App is activated - navigating to Dashboard");
+                navigationService.NavigateTo("Dashboard");
+            }
+            else
+            {
+                Log.Information("App is not activated - starting setup wizard");
+                navigationService.NavigateTo("WelcomeSetup");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Could not determine activation status - starting setup wizard");
+            navigationService.NavigateTo("WelcomeSetup");
+        }
+
         _window.Activate();
     }
 
@@ -139,7 +167,9 @@ public partial class App : Application
             var nav = new NavigationService(sp.GetRequiredService<ILogger<NavigationService>>());
 
             // Register pages
+            nav.RegisterPage<WelcomeSetupPage>("WelcomeSetup");
             nav.RegisterPage<ActivationPage>("Activation");
+            nav.RegisterPage<ActivationPage>("LicenseSetup"); // Alias for activation page in setup context
             nav.RegisterPage<DashboardPage>("Dashboard");
             nav.RegisterPage<GuideListPage>("GuideList");
             nav.RegisterPage<GuideDetailPage>("GuideDetail");
@@ -152,6 +182,7 @@ public partial class App : Application
 
         // ViewModels
         services.AddTransient<ShellViewModel>();
+        services.AddTransient<WelcomeSetupViewModel>();
         services.AddTransient<ActivationViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<GuideListViewModel>();
@@ -161,6 +192,7 @@ public partial class App : Application
         services.AddTransient<AdminEditorViewModel>();
 
         // Views
+        services.AddTransient<WelcomeSetupPage>();
         services.AddTransient<ActivationPage>();
         services.AddTransient<DashboardPage>();
         services.AddTransient<GuideListPage>();
