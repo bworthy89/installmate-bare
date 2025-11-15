@@ -15,5 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InstallVibe.Data\InstallVibe.Data.csproj" />
+    <ProjectReference Include="..\InstallVibe.Infrastructure\InstallVibe.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

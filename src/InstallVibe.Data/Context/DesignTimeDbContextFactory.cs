@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using InstallVibe.Infrastructure.Constants;
 
 namespace InstallVibe.Data.Context;
 
@@ -14,7 +13,14 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<InstallVib
         var optionsBuilder = new DbContextOptionsBuilder<InstallVibeContext>();
 
         // Use the actual database path for migrations
-        optionsBuilder.UseSqlite($"Data Source={PathConstants.DatabasePath}");
+        // This mirrors PathConstants.DatabasePath but avoids circular dependency
+        var appDataPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "InstallVibe");
+        var dataPath = Path.Combine(appDataPath, "Data");
+        var databasePath = Path.Combine(dataPath, "installvibe.db");
+
+        optionsBuilder.UseSqlite($"Data Source={databasePath}");
 
         return new InstallVibeContext(optionsBuilder.Options);
     }

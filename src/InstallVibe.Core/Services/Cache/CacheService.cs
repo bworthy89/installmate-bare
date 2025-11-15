@@ -376,6 +376,20 @@ public class CacheService : ICacheService
                 await _context.SaveChangesAsync();
             }
         }
+        else if (entityType.ToLower() == "media")
+        {
+            var media = await _context.MediaCache.FindAsync(entityId);
+            if (media != null)
+            {
+                media.LocalPath = path;
+                media.FileSize = size;
+                media.Checksum = checksum;
+                media.CachedDate = DateTime.UtcNow;
+                media.LastAccessed = DateTime.UtcNow;
+                media.AccessCount++;
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 
     private async Task UpdateLastAccessedAsync(string entityType, string entityId)
@@ -399,15 +413,46 @@ public class CacheService : ICacheService
         try
         {
             // Find media not referenced by any step
-            var referencedMediaIds = await _context.Steps
+            var referencedMediaJsons = await _context.Steps
                 .Where(s => s.MediaReferences != null)
                 .Select(s => s.MediaReferences!)
                 .ToListAsync();
 
+            // Parse JSON to extract all referenced media IDs
+            var referencedMediaIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var json in referencedMediaJsons)
+            {
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(json))
+                    {
+                        using var doc = System.Text.Json.JsonDocument.Parse(json);
+                        if (doc.RootElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                        {
+                            foreach (var element in doc.RootElement.EnumerateArray())
+                            {
+                                if (element.TryGetProperty("mediaId", out var mediaIdProperty))
+                                {
+                                    var mediaId = mediaIdProperty.GetString();
+                                    if (!string.IsNullOrEmpty(mediaId))
+                                    {
+                                        referencedMediaIds.Add(mediaId);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (System.Text.Json.JsonException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse MediaReferences JSON: {Json}", json);
+                }
+            }
+
             var allMediaIds = await _context.MediaCache.Select(m => m.MediaId).ToListAsync();
 
-            // This is simplified - in production, parse JSON to extract media IDs
-            var orphanedMedia = allMediaIds; // TODO: Implement proper JSON parsing
+            // Find orphaned media (media not referenced by any step)
+            var orphanedMedia = allMediaIds.Except(referencedMediaIds, StringComparer.OrdinalIgnoreCase).ToList();
 
             foreach (var mediaId in orphanedMedia.Take(100)) // Limit batch size
             {

@@ -8,19 +8,20 @@ using InstallVibe.Data.Context;
 using InstallVibe.Infrastructure.Configuration;
 using InstallVibe.Infrastructure.Device;
 using InstallVibe.Infrastructure.Security.Cryptography;
-using InstallVibe.Infrastructure.Security.Encryption;
 using InstallVibe.Infrastructure.Security.Graph;
 using InstallVibe.Services.Navigation;
 using InstallVibe.ViewModels.Activation;
 using InstallVibe.ViewModels.Admin;
 using InstallVibe.ViewModels.Dashboard;
-using InstallVibe.ViewModels.Guide;
+using InstallVibe.ViewModels.Guides;
 using InstallVibe.ViewModels.Settings;
+using InstallVibe.ViewModels.Shell;
 using InstallVibe.Views.Activation;
 using InstallVibe.Views.Admin;
 using InstallVibe.Views.Dashboard;
-using InstallVibe.Views.Guide;
+using InstallVibe.Views.Guides;
 using InstallVibe.Views.Settings;
+using InstallVibe.Views.Shell;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +42,11 @@ public partial class App : Application
     public new static App Current => (App)Application.Current;
 
     public IServiceProvider Services => _serviceProvider;
+
+    public static T GetService<T>() where T : class
+    {
+        return Current.Services.GetRequiredService<T>();
+    }
 
     public App()
     {
@@ -145,6 +151,7 @@ public partial class App : Application
         });
 
         // ViewModels
+        services.AddTransient<ShellViewModel>();
         services.AddTransient<ActivationViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<GuideListViewModel>();

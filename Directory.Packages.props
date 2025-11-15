@@ -21,16 +21,21 @@
     <!-- Microsoft Graph and SharePoint -->
     <PackageVersion Include="Microsoft.Graph" Version="5.40.0" />
     <PackageVersion Include="PnP.Core" Version="1.11.0" />
-    <PackageVersion Include="Microsoft.Identity.Client" Version="4.60.3" />
+    <PackageVersion Include="Microsoft.Identity.Client" Version="4.79.1" />
+    <PackageVersion Include="Azure.Identity" Version="1.17.0" />
 
     <!-- Logging -->
     <PackageVersion Include="Serilog" Version="3.1.1" />
     <PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageVersion Include="Serilog.Sinks.Debug" Version="2.0.0" />
     <PackageVersion Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.0" />
 
     <!-- Utilities -->
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="System.Management" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 
     <!-- Testing -->
     <PackageVersion Include="xunit" Version="2.6.6" />

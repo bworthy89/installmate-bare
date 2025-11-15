@@ -6,8 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <!-- Placeholder for MainWindow -->
     <Grid>
-        <TextBlock Text="InstallVibe - Main Window" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Frame x:Name="RootFrame"/>
     </Grid>
 </Window>

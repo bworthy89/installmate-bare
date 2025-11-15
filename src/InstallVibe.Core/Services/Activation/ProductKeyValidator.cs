@@ -1,5 +1,6 @@
 using InstallVibe.Core.Models.Activation;
 using InstallVibe.Infrastructure.Security.Cryptography;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -187,7 +188,7 @@ public class ProductKeyValidator : IProductKeyValidator
                 intData = intData * 58 + digit;
             }
 
-            var bytes = intData.ToByteArray().Reverse().ToArray();
+            var bytes = Enumerable.Reverse(intData.ToByteArray()).ToArray();
 
             // Remove leading zeros
             int leadingZeros = input.TakeWhile(c => c == Base58Alphabet[0]).Count();
@@ -204,7 +205,7 @@ public class ProductKeyValidator : IProductKeyValidator
 
     private string EncodeBase58(byte[] input)
     {
-        var intData = new System.Numerics.BigInteger(input.Reverse().Concat(new byte[] { 0 }).ToArray());
+        var intData = new System.Numerics.BigInteger(Enumerable.Reverse(input).Concat(new byte[] { 0 }).ToArray());
         var result = new StringBuilder();
 
         while (intData > 0)

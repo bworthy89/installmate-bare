@@ -19,16 +19,14 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" />
+    <PackageReference Include="Serilog.Settings.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\InstallVibe.Core\InstallVibe.Core.csproj" />
     <ProjectReference Include="..\InstallVibe.Infrastructure\InstallVibe.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="**\*.xaml" />
-    <Page Include="**\*.xaml" Exclude="bin\**\*.xaml;obj\**\*.xaml" />
   </ItemGroup>
 
   <ItemGroup>

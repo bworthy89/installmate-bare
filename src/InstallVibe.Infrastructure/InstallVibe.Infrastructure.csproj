@@ -12,9 +12,8 @@
     <PackageReference Include="Serilog.Sinks.Debug" />
     <PackageReference Include="Serilog.Extensions.Logging" />
     <PackageReference Include="Newtonsoft.Json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\InstallVibe.Core\InstallVibe.Core.csproj" />
+    <PackageReference Include="System.Management" />
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Microsoft.Graph" />
   </ItemGroup>
 </Project>
