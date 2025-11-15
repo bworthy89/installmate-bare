@@ -8,7 +8,6 @@ using InstallVibe.Data.Context;
 using InstallVibe.Infrastructure.Configuration;
 using InstallVibe.Infrastructure.Device;
 using InstallVibe.Infrastructure.Security.Cryptography;
-using InstallVibe.Infrastructure.Security.Encryption;
 using InstallVibe.Infrastructure.Security.Graph;
 using InstallVibe.Services.Navigation;
 using InstallVibe.ViewModels.Activation;
