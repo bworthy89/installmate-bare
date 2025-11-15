@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using InstallVibe.Core.Models.Domain;
 using InstallVibe.Core.Services.Data;
 using InstallVibe.Core.Services.SharePoint;
+using InstallVibe.Services.Navigation;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 
@@ -15,6 +16,7 @@ public partial class AdminEditorViewModel : ObservableObject
 {
     private readonly ISharePointService _sharePointService;
     private readonly IGuideService _guideService;
+    private readonly INavigationService _navigationService;
     private readonly ILogger<AdminEditorViewModel> _logger;
 
     [ObservableProperty]
@@ -32,10 +34,12 @@ public partial class AdminEditorViewModel : ObservableObject
     public AdminEditorViewModel(
         ISharePointService sharePointService,
         IGuideService guideService,
+        INavigationService navigationService,
         ILogger<AdminEditorViewModel> logger)
     {
         _sharePointService = sharePointService ?? throw new ArgumentNullException(nameof(sharePointService));
         _guideService = guideService ?? throw new ArgumentNullException(nameof(guideService));
+        _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -91,5 +95,12 @@ public partial class AdminEditorViewModel : ObservableObject
         {
             IsSaving = false;
         }
+    }
+
+    [RelayCommand]
+    private void GoBack()
+    {
+        _logger.LogInformation("Navigating back to Dashboard");
+        _navigationService.NavigateTo("Dashboard");
     }
 }

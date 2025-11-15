@@ -4,6 +4,7 @@ using InstallVibe.Core.Services.Data;
 using InstallVibe.Core.Services.Engine;
 using InstallVibe.Core.Services.Media;
 using InstallVibe.Core.Services.SharePoint;
+using InstallVibe.Core.Services.User;
 using InstallVibe.Data.Context;
 using InstallVibe.Infrastructure.Configuration;
 using InstallVibe.Infrastructure.Device;
@@ -153,6 +154,8 @@ public partial class App : Application
         services.AddScoped<ICacheService, CacheService>();
         services.AddScoped<IGuideService, GuideService>();
         services.AddScoped<IProgressService, ProgressService>();
+        services.AddScoped<IFavoritesService, FavoritesService>();
+        services.AddSingleton<IUserService, UserService>();
         services.AddScoped<IProductKeyValidator, ProductKeyValidator>();
         services.AddScoped<ITokenManager, TokenManager>();
         services.AddScoped<IActivationService, ActivationService>();

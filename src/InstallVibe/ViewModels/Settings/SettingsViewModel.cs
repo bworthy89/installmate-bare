@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using InstallVibe.Services.Navigation;
 using Microsoft.Extensions.Logging;
 
 namespace InstallVibe.ViewModels.Settings;
@@ -9,6 +10,7 @@ namespace InstallVibe.ViewModels.Settings;
 /// </summary>
 public partial class SettingsViewModel : ObservableObject
 {
+    private readonly INavigationService _navigationService;
     private readonly ILogger<SettingsViewModel> _logger;
 
     [ObservableProperty]
@@ -23,8 +25,11 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int _cacheLimit = 500;
 
-    public SettingsViewModel(ILogger<SettingsViewModel> logger)
+    public SettingsViewModel(
+        INavigationService navigationService,
+        ILogger<SettingsViewModel> logger)
     {
+        _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         LoadSettings();
     }
@@ -51,5 +56,12 @@ public partial class SettingsViewModel : ObservableObject
         SyncInterval = 60;
         CacheLimit = 500;
         _logger.LogInformation("Settings reset to defaults");
+    }
+
+    [RelayCommand]
+    private void GoBack()
+    {
+        _logger.LogInformation("Navigating back to Dashboard");
+        _navigationService.NavigateTo("Dashboard");
     }
 }

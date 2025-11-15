@@ -69,4 +69,11 @@ public partial class GuideListViewModel : ObservableObject
             _navigationService.NavigateTo("GuideDetail", guide.GuideId);
         }
     }
+
+    [RelayCommand]
+    private void GoBack()
+    {
+        _logger.LogInformation("Navigating back to Dashboard");
+        _navigationService.NavigateTo("Dashboard");
+    }
 }

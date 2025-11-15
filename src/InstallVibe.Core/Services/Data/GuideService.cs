@@ -185,6 +185,149 @@ public class GuideService : IGuideService
         return await _context.Guides.AnyAsync(g => g.GuideId == guideId && !g.IsDeleted);
     }
 
+    /// <inheritdoc/>
+    public async Task<List<Guide>> GetNewGuidesAsync(int count = 3)
+    {
+        try
+        {
+            var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
+
+            var guideEntities = await _context.Guides
+                .Where(g => !g.IsDeleted && g.CreatedDate >= thirtyDaysAgo)
+                .OrderByDescending(g => g.CreatedDate)
+                .Take(count)
+                .ToListAsync();
+
+            var guides = new List<Guide>();
+            foreach (var entity in guideEntities)
+            {
+                try
+                {
+                    var guide = await GetGuideAsync(entity.GuideId);
+                    if (guide != null)
+                        guides.Add(guide);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Skipping guide {GuideId} due to error", entity.GuideId);
+                }
+            }
+
+            _logger.LogDebug("Retrieved {Count} new guides", guides.Count);
+            return guides;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting new guides");
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<Guide>> GetInProgressGuidesAsync(string userId)
+    {
+        try
+        {
+            // Get guide IDs that have progress but are not completed
+            var inProgressGuideIds = await _context.Progress
+                .Where(p => p.UserId == userId && p.CompletedDate == null)
+                .OrderByDescending(p => p.LastUpdated)
+                .Select(p => p.GuideId)
+                .ToListAsync();
+
+            var guides = new List<Guide>();
+            foreach (var guideId in inProgressGuideIds)
+            {
+                try
+                {
+                    var guide = await GetGuideAsync(guideId);
+                    if (guide != null)
+                        guides.Add(guide);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Skipping guide {GuideId} due to error", guideId);
+                }
+            }
+
+            _logger.LogDebug("Retrieved {Count} in-progress guides for user {UserId}", guides.Count, userId);
+            return guides;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting in-progress guides for user {UserId}", userId);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<Guide>> GetCompletedGuidesAsync(string userId, int count = 3)
+    {
+        try
+        {
+            // Get guide IDs that have been completed
+            var completedGuideIds = await _context.Progress
+                .Where(p => p.UserId == userId && p.CompletedDate != null)
+                .OrderByDescending(p => p.CompletedDate)
+                .Take(count)
+                .Select(p => p.GuideId)
+                .ToListAsync();
+
+            var guides = new List<Guide>();
+            foreach (var guideId in completedGuideIds)
+            {
+                try
+                {
+                    var guide = await GetGuideAsync(guideId);
+                    if (guide != null)
+                        guides.Add(guide);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Skipping guide {GuideId} due to error", guideId);
+                }
+            }
+
+            _logger.LogDebug("Retrieved {Count} completed guides for user {UserId}", guides.Count, userId);
+            return guides;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting completed guides for user {UserId}", userId);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<Guide>> GetGuidesByIdsAsync(List<string> guideIds)
+    {
+        try
+        {
+            var guides = new List<Guide>();
+            foreach (var guideId in guideIds)
+            {
+                try
+                {
+                    var guide = await GetGuideAsync(guideId);
+                    if (guide != null)
+                        guides.Add(guide);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Skipping guide {GuideId} due to error", guideId);
+                }
+            }
+
+            _logger.LogDebug("Retrieved {Count} guides by IDs", guides.Count);
+            return guides;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting guides by IDs");
+            throw;
+        }
+    }
+
     // Private helper methods
 
     private Guide MapEntityToModel(GuideEntity entity)

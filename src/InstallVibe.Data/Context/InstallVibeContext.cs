@@ -14,6 +14,7 @@ public class InstallVibeContext : DbContext
     public DbSet<ProgressEntity> Progress { get; set; } = null!;
     public DbSet<SyncMetadataEntity> SyncMetadata { get; set; } = null!;
     public DbSet<SettingEntity> Settings { get; set; } = null!;
+    public DbSet<FavoriteEntity> Favorites { get; set; } = null!;
 
     public InstallVibeContext(DbContextOptions<InstallVibeContext> options)
         : base(options)
@@ -111,6 +112,22 @@ public class InstallVibeContext : DbContext
 
             entity.Property(e => e.LastModified)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+
+        // Configure FavoriteEntity
+        modelBuilder.Entity<FavoriteEntity>(entity =>
+        {
+            entity.HasKey(e => e.FavoriteId);
+
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => new { e.UserId, e.GuideId }).IsUnique();
+            entity.HasIndex(e => new { e.UserId, e.SortOrder });
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.Property(e => e.SortOrder)
+                .HasDefaultValue(0);
         });
     }
 }
