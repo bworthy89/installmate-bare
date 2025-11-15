@@ -6,12 +6,113 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <!-- Placeholder for Product Key Activation Page -->
-    <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
-            <TextBlock Text="Enter Product Key" Style="{StaticResource TitleTextBlockStyle}"/>
-            <TextBox PlaceholderText="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" Width="400"/>
-            <Button Content="Activate" HorizontalAlignment="Center"/>
+    <Grid Padding="40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,32">
+            <TextBlock Text="InstallVibe Activation"
+                       Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Text="Enter your product key to activate InstallVibe"
+                       Style="{StaticResource BodyTextBlockStyle}"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        </StackPanel>
+
+        <!-- Content -->
+        <StackPanel Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    MaxWidth="500"
+                    Spacing="24">
+
+            <!-- Not Activated View -->
+            <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.IsActivated, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+
+                <!-- Product Key Input -->
+                <TextBox x:Name="ProductKeyTextBox"
+                         Header="Product Key"
+                         PlaceholderText="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+                         Text="{x:Bind ViewModel.ProductKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         MaxLength="29"
+                         IsEnabled="{x:Bind ViewModel.IsActivating, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                         FontFamily="Consolas"
+                         CharacterSpacing="50"/>
+
+                <!-- Error Message -->
+                <InfoBar IsOpen="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}"
+                         Severity="Error"
+                         Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                         IsClosable="True"/>
+
+                <!-- Activate Button -->
+                <Button Content="Activate"
+                        Command="{x:Bind ViewModel.ActivateCommand}"
+                        Style="{StaticResource AccentButtonStyle}"
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="{x:Bind ViewModel.IsActivating, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ProgressRing IsActive="{x:Bind ViewModel.IsActivating, Mode=OneWay}"
+                                          Width="16" Height="16"
+                                          Visibility="{x:Bind ViewModel.IsActivating, Mode=OneWay}"/>
+                            <TextBlock Text="{x:Bind ViewModel.IsActivating, Mode=OneWay, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Activating...|Activate'}"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+
+                <!-- Help Text -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="License Types:"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               FontWeight="SemiBold"/>
+                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
+                        <Run Text="• Tech License:"/>
+                        <Run Text="Read-only access to guides" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
+                        <Run Text="• Admin License:"/>
+                        <Run Text="Full access including guide editor" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Activated View -->
+            <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.IsActivated, Mode=OneWay}">
+
+                <!-- Success Icon -->
+                <FontIcon Glyph="&#xE73E;"
+                          FontSize="48"
+                          Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                          HorizontalAlignment="Center"/>
+
+                <!-- License Info -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="InstallVibe is Activated"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="{x:Bind ViewModel.LicenseInfo, Mode=OneWay}"
+                               Style="{StaticResource BodyTextBlockStyle}"
+                               HorizontalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+
+                <!-- Deactivate Button -->
+                <Button Content="Deactivate"
+                        Command="{x:Bind ViewModel.DeactivateCommand}"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,16,0,0">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE7E8;" FontSize="16"/>
+                            <TextBlock Text="Deactivate"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+
         </StackPanel>
     </Grid>
 </Page>
