@@ -6,7 +6,7 @@ using InstallVibe.Core.Services.Engine;
 using InstallVibe.Services.Navigation;
 using Microsoft.Extensions.Logging;
 
-namespace InstallVibe.ViewModels.Guide;
+namespace InstallVibe.ViewModels.Guides;
 
 /// <summary>
 /// ViewModel for individual guide step page.
@@ -18,7 +18,13 @@ public partial class StepViewModel : ObservableObject
     private readonly ILogger<StepViewModel> _logger;
 
     [ObservableProperty]
-    private GuideStep? _currentStep;
+    private Step? _currentStep;
+
+    [ObservableProperty]
+    private string _currentGuideId = string.Empty;
+
+    [ObservableProperty]
+    private string _currentProgressId = string.Empty;
 
     [ObservableProperty]
     private bool _isProcessing = false;
@@ -39,20 +45,21 @@ public partial class StepViewModel : ObservableObject
     [RelayCommand]
     private async Task CompleteStepAsync()
     {
-        if (CurrentStep == null) return;
+        if (CurrentStep == null || string.IsNullOrEmpty(CurrentProgressId)) return;
 
         IsProcessing = true;
 
         try
         {
-            await _guideEngine.UpdateStepProgressAsync(
-                CurrentStep.GuideId,
-                CurrentStep.StepId,
-                StepStatus.Completed);
+            await _guideEngine.CompleteStepAsync(CurrentProgressId, CurrentStep.StepId);
 
-            var hasNext = await _guideEngine.MoveToNextStepAsync(CurrentStep.GuideId);
+            var nextStep = await _guideEngine.GetNextStepAsync(CurrentGuideId, CurrentStep.StepId);
 
-            if (!hasNext)
+            if (nextStep != null)
+            {
+                CurrentStep = nextStep;
+            }
+            else
             {
                 _navigationService.GoBack();
             }
@@ -70,18 +77,27 @@ public partial class StepViewModel : ObservableObject
     [RelayCommand]
     private async Task SkipStepAsync()
     {
-        if (CurrentStep == null) return;
+        if (CurrentStep == null || string.IsNullOrEmpty(CurrentProgressId)) return;
 
         IsProcessing = true;
 
         try
         {
-            await _guideEngine.UpdateStepProgressAsync(
-                CurrentStep.GuideId,
+            await _guideEngine.UpdateStepStatusAsync(
+                CurrentProgressId,
                 CurrentStep.StepId,
                 StepStatus.Skipped);
 
-            await _guideEngine.MoveToNextStepAsync(CurrentStep.GuideId);
+            var nextStep = await _guideEngine.GetNextStepAsync(CurrentGuideId, CurrentStep.StepId);
+
+            if (nextStep != null)
+            {
+                CurrentStep = nextStep;
+            }
+            else
+            {
+                _navigationService.GoBack();
+            }
         }
         catch (Exception ex)
         {

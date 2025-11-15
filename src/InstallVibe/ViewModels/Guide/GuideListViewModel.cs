@@ -6,7 +6,7 @@ using InstallVibe.Services.Navigation;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 
-namespace InstallVibe.ViewModels.Guide;
+namespace InstallVibe.ViewModels.Guides;
 
 /// <summary>
 /// ViewModel for the guide list page.
@@ -18,10 +18,10 @@ public partial class GuideListViewModel : ObservableObject
     private readonly ILogger<GuideListViewModel> _logger;
 
     [ObservableProperty]
-    private ObservableCollection<Core.Models.Domain.Guide> _guides = new();
+    private ObservableCollection<Guide> _guides = new();
 
     [ObservableProperty]
-    private Core.Models.Domain.Guide? _selectedGuide;
+    private Guide? _selectedGuide;
 
     [ObservableProperty]
     private bool _isLoading = false;
@@ -49,7 +49,7 @@ public partial class GuideListViewModel : ObservableObject
         try
         {
             var guides = await _guideService.GetAllGuidesAsync();
-            Guides = new ObservableCollection<Core.Models.Domain.Guide>(guides);
+            Guides = new ObservableCollection<Guide>(guides);
         }
         catch (Exception ex)
         {
@@ -62,7 +62,7 @@ public partial class GuideListViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SelectGuide(Core.Models.Domain.Guide guide)
+    private void SelectGuide(Guide guide)
     {
         if (guide != null)
         {

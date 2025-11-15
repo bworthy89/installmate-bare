@@ -1,8 +1,8 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using InstallVibe.ViewModels.Guide;
+using InstallVibe.ViewModels.Guides;
 
-namespace InstallVibe.Views.Guide;
+namespace InstallVibe.Views.Guides;
 
 /// <summary>
 /// Page showing guide details.

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using InstallVibe.Core.Models.Domain;
+using InstallVibe.Core.Services.Data;
 using InstallVibe.Core.Services.SharePoint;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
@@ -13,6 +14,7 @@ namespace InstallVibe.ViewModels.Admin;
 public partial class AdminEditorViewModel : ObservableObject
 {
     private readonly ISharePointService _sharePointService;
+    private readonly IGuideService _guideService;
     private readonly ILogger<AdminEditorViewModel> _logger;
 
     [ObservableProperty]
@@ -29,9 +31,11 @@ public partial class AdminEditorViewModel : ObservableObject
 
     public AdminEditorViewModel(
         ISharePointService sharePointService,
+        IGuideService guideService,
         ILogger<AdminEditorViewModel> logger)
     {
         _sharePointService = sharePointService ?? throw new ArgumentNullException(nameof(sharePointService));
+        _guideService = guideService ?? throw new ArgumentNullException(nameof(guideService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -42,12 +46,13 @@ public partial class AdminEditorViewModel : ObservableObject
 
         try
         {
-            var guides = await _sharePointService.GetGuidesAsync();
+            // Load guides from local storage (already synced from SharePoint)
+            var guides = await _guideService.GetAllGuidesAsync();
             Guides = new ObservableCollection<Guide>(guides);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error loading guides from SharePoint");
+            _logger.LogError(ex, "Error loading guides");
         }
         finally
         {
@@ -62,8 +67,21 @@ public partial class AdminEditorViewModel : ObservableObject
 
         try
         {
-            await _sharePointService.SyncGuideAsync(guideId);
-            _logger.LogInformation("Guide {GuideId} synced successfully", guideId);
+            // Download guide from SharePoint and save to local storage
+            var guide = await _sharePointService.GetGuideAsync(guideId);
+
+            if (guide != null)
+            {
+                await _guideService.SaveGuideAsync(guide);
+                _logger.LogInformation("Guide {GuideId} synced successfully", guideId);
+
+                // Reload guides to reflect changes
+                await LoadGuidesAsync();
+            }
+            else
+            {
+                _logger.LogWarning("Guide {GuideId} not found in SharePoint", guideId);
+            }
         }
         catch (Exception ex)
         {

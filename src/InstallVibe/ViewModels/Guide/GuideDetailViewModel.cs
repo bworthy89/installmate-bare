@@ -6,7 +6,7 @@ using InstallVibe.Core.Services.Engine;
 using InstallVibe.Services.Navigation;
 using Microsoft.Extensions.Logging;
 
-namespace InstallVibe.ViewModels.Guide;
+namespace InstallVibe.ViewModels.Guides;
 
 /// <summary>
 /// ViewModel for the guide detail page.
@@ -19,7 +19,7 @@ public partial class GuideDetailViewModel : ObservableObject
     private readonly ILogger<GuideDetailViewModel> _logger;
 
     [ObservableProperty]
-    private Core.Models.Domain.Guide? _guide;
+    private Guide? _guide;
 
     [ObservableProperty]
     private bool _isLoading = false;
@@ -45,7 +45,7 @@ public partial class GuideDetailViewModel : ObservableObject
 
         try
         {
-            Guide = await _guideService.GetGuideByIdAsync(guideId);
+            Guide = await _guideService.GetGuideAsync(guideId);
         }
         catch (Exception ex)
         {
@@ -66,7 +66,9 @@ public partial class GuideDetailViewModel : ObservableObject
 
         try
         {
-            await _guideEngine.StartGuideAsync(Guide.GuideId);
+            // TODO: Get actual user ID from authentication service
+            var userId = Environment.UserName; // Temporary: use Windows username
+            await _guideEngine.StartGuideAsync(Guide.GuideId, userId);
             _navigationService.NavigateTo("Step", Guide.GuideId);
         }
         catch (Exception ex)
