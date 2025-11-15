@@ -48,6 +48,11 @@ public class Guide
     public DateTime LastModified { get; set; } = DateTime.UtcNow;
 
     /// <summary>
+    /// Number of times this guide has been used/opened.
+    /// </summary>
+    public int UsageCount { get; set; } = 0;
+
+    /// <summary>
     /// Guide author name.
     /// </summary>
     public string? Author { get; set; }

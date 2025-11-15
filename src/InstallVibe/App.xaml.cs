@@ -15,18 +15,17 @@ using InstallVibe.Infrastructure.Security.Cryptography;
 using InstallVibe.Infrastructure.Security.Encryption;
 using InstallVibe.Infrastructure.Security.Graph;
 using InstallVibe.Services.Navigation;
+using InstallVibe.ViewModels.About;
 using InstallVibe.ViewModels.Activation;
-using InstallVibe.ViewModels.Admin;
-using InstallVibe.ViewModels.Dashboard;
 using InstallVibe.ViewModels.Editor;
-using InstallVibe.ViewModels.Guide;
+using InstallVibe.ViewModels.Guides;
 using InstallVibe.ViewModels.Settings;
+using InstallVibe.Views.About;
 using InstallVibe.Views.Activation;
-using InstallVibe.Views.Admin;
-using InstallVibe.Views.Dashboard;
 using InstallVibe.Views.Editor;
-using InstallVibe.Views.Guide;
+using InstallVibe.Views.Guides;
 using InstallVibe.Views.Settings;
+using InstallVibe.Views.Shell;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -163,12 +162,10 @@ public partial class App : Application
 
             // Register pages
             nav.RegisterPage<ActivationPage>("Activation");
-            nav.RegisterPage<DashboardPage>("Dashboard");
-            nav.RegisterPage<GuideListPage>("GuideList");
+            nav.RegisterPage<GuidesPage>("Guides");
             nav.RegisterPage<GuideDetailPage>("GuideDetail");
-            nav.RegisterPage<StepPage>("Step");
             nav.RegisterPage<SettingsPage>("Settings");
-            nav.RegisterPage<AdminEditorPage>("AdminEditor");
+            nav.RegisterPage<AboutPage>("About");
             nav.RegisterPage<GuideEditorPage>("GuideEditor");
 
             return nav;
@@ -176,12 +173,10 @@ public partial class App : Application
 
         // ViewModels
         services.AddTransient<ActivationViewModel>();
-        services.AddTransient<DashboardViewModel>();
-        services.AddTransient<GuideListViewModel>();
+        services.AddTransient<GuidesViewModel>();
         services.AddTransient<GuideDetailViewModel>();
-        services.AddTransient<StepViewModel>();
         services.AddTransient<SettingsViewModel>();
-        services.AddTransient<AdminEditorViewModel>();
+        services.AddTransient<AboutViewModel>();
 
         // Editor ViewModels
         services.AddTransient<GuideEditorViewModel>();
@@ -189,15 +184,16 @@ public partial class App : Application
 
         // Views
         services.AddTransient<ActivationPage>();
-        services.AddTransient<DashboardPage>();
-        services.AddTransient<GuideListPage>();
+        services.AddTransient<GuidesPage>();
         services.AddTransient<GuideDetailPage>();
-        services.AddTransient<StepPage>();
         services.AddTransient<SettingsPage>();
-        services.AddTransient<AdminEditorPage>();
+        services.AddTransient<AboutPage>();
 
         // Editor Views
         services.AddTransient<GuideEditorPage>();
+
+        // Shell
+        services.AddTransient<ShellPage>();
 
         // MainWindow
         services.AddSingleton<MainWindow>();
