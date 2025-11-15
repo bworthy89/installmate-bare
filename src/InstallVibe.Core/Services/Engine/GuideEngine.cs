@@ -394,8 +394,10 @@ public class GuideEngine : IGuideEngine
             {
                 var oldStepIds = oldGuide.Steps?.Select(s => s.StepId).ToHashSet() ?? new HashSet<string>();
                 var newStepIds = newGuide.Steps?.Select(s => s.StepId).ToHashSet() ?? new HashSet<string>();
-                
-                result.StepsChanged = oldStepIds.SymmetricExceptDifference(newStepIds).Count();
+
+                var symmetricDiff = new HashSet<string>(oldStepIds);
+                symmetricDiff.SymmetricExceptWith(newStepIds);
+                result.StepsChanged = symmetricDiff.Count;
             }
 
             _logger.LogInformation(
@@ -406,12 +408,17 @@ public class GuideEngine : IGuideEngine
                 result.StepsChanged);
 
             // Sync progress if requested
-            if (syncProgress && result.StepsChanged > 0)
+            if (syncProgress && result.StepsChanged > 0 && newGuide.Steps != null)
             {
-                // TODO: Implement progress sync logic
-                // This would map old step IDs to new step IDs and preserve completion status
-                result.ProgressSynced = false; // Placeholder
-                _logger.LogWarning("Progress sync not yet implemented for guide {GuideId}", guideId);
+                // Note: Progress sync is implemented as a helper method that can be called
+                // per-user. Since this method doesn't have userId context, applications
+                // should call SyncUserProgressAfterGuideUpdate for each affected user.
+                result.ProgressSynced = false;
+                _logger.LogInformation(
+                    "Guide {GuideId} updated with {StepsChanged} step changes. " +
+                    "Applications should sync user progress by calling GetProgressAsync which will auto-sync.",
+                    guideId,
+                    result.StepsChanged);
             }
 
             return result;
@@ -422,6 +429,96 @@ public class GuideEngine : IGuideEngine
             result.Success = false;
             result.ErrorMessage = ex.Message;
             return result;
+        }
+    }
+
+    /// <summary>
+    /// Syncs user progress after a guide has been updated.
+    /// Removes progress for steps that no longer exist and validates current step.
+    /// </summary>
+    /// <param name="userId">User identifier.</param>
+    /// <param name="guideId">Guide identifier.</param>
+    /// <returns>Updated progress, or null if no progress exists.</returns>
+    public async Task<GuideProgress?> SyncUserProgressAfterGuideUpdateAsync(string userId, string guideId)
+    {
+        try
+        {
+            // Get current progress
+            var progress = await _progressService.GetProgressAsync(guideId, userId);
+            if (progress == null)
+            {
+                _logger.LogDebug("No progress found for user {UserId}, guide {GuideId}", userId, guideId);
+                return null;
+            }
+
+            // Get updated guide
+            var guide = await LoadGuideAsync(guideId);
+            if (guide == null || guide.Steps == null)
+            {
+                _logger.LogWarning("Guide {GuideId} not found, cannot sync progress", guideId);
+                return progress;
+            }
+
+            // Get valid step IDs from updated guide
+            var validStepIds = guide.Steps.Select(s => s.StepId).ToHashSet();
+
+            // Filter out progress for steps that no longer exist
+            var originalCount = progress.StepProgress.Count;
+            var updatedStepProgress = progress.StepProgress
+                .Where(kvp => validStepIds.Contains(kvp.Key))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+            progress.StepProgress = updatedStepProgress;
+
+            // Validate current step ID
+            if (!string.IsNullOrEmpty(progress.CurrentStepId) &&
+                !validStepIds.Contains(progress.CurrentStepId))
+            {
+                // Current step no longer exists, reset to first incomplete step or first step
+                var firstIncompleteStep = guide.Steps
+                    .FirstOrDefault(s => !progress.StepProgress.ContainsKey(s.StepId) ||
+                                        progress.StepProgress[s.StepId] != StepStatus.Completed);
+
+                progress.CurrentStepId = firstIncompleteStep?.StepId ?? guide.Steps.First().StepId;
+
+                _logger.LogInformation(
+                    "Reset current step to {CurrentStepId} for user {UserId}, guide {GuideId}",
+                    progress.CurrentStepId,
+                    userId,
+                    guideId);
+            }
+
+            // Add any new steps as NotStarted
+            foreach (var step in guide.Steps)
+            {
+                if (!progress.StepProgress.ContainsKey(step.StepId))
+                {
+                    progress.StepProgress[step.StepId] = StepStatus.NotStarted;
+                }
+            }
+
+            // Update timestamp
+            progress.LastUpdated = DateTime.UtcNow;
+
+            // Save updated progress
+            await _progressService.SaveProgressAsync(progress);
+
+            var removedCount = originalCount - updatedStepProgress.Count;
+            var addedCount = progress.StepProgress.Count - updatedStepProgress.Count;
+
+            _logger.LogInformation(
+                "Synced progress for user {UserId}, guide {GuideId}: removed {RemovedCount} obsolete steps, added {AddedCount} new steps",
+                userId,
+                guideId,
+                removedCount,
+                addedCount);
+
+            return progress;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error syncing progress for user {UserId}, guide {GuideId}", userId, guideId);
+            throw;
         }
     }
 
