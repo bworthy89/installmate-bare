@@ -1,0 +1,37 @@
+{
+  "guideId": "sample-guide-001",
+  "title": "Sample Installation Guide",
+  "version": "1.0.0",
+  "category": "Software",
+  "description": "A sample guide demonstrating the structure",
+  "requiredLicense": "Tech",
+  "published": true,
+  "lastModified": "2025-01-15T10:00:00Z",
+  "metadata": {
+    "author": "InstallVibe Team",
+    "estimatedDuration": 30,
+    "difficulty": "Beginner"
+  },
+  "steps": [
+    {
+      "stepId": "step-001",
+      "stepNumber": 1,
+      "title": "Prepare the Environment",
+      "content": "# Step 1: Prepare the Environment\n\nBefore beginning the installation, ensure you have:\n- Administrator access\n- Required installation media\n- Network connectivity",
+      "type": "Info",
+      "media": [],
+      "checklist": [
+        {
+          "id": "check-001",
+          "text": "Verify administrator access",
+          "required": true
+        },
+        {
+          "id": "check-002",
+          "text": "Check network connectivity",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
