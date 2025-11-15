@@ -1,0 +1,36 @@
+{
+  "stepId": "step-001",
+  "stepNumber": 1,
+  "title": "Prepare the Environment",
+  "content": "# Step 1: Prepare the Environment\n\nBefore beginning the installation, ensure you have:\n\n1. **Administrator access**: You must have local administrator privileges\n2. **Required installation media**: Download or obtain installation files\n3. **Network connectivity**: Ensure stable internet connection\n\n## Prerequisites\n\n- Windows 10 version 1809 or later\n- 4 GB RAM minimum\n- 10 GB free disk space\n\n## Next Steps\n\nOnce you've verified all prerequisites, click 'Next' to continue.",
+  "type": "Info",
+  "media": [
+    {
+      "mediaId": "img-001",
+      "type": "Image",
+      "caption": "System Requirements Screenshot",
+      "localPath": "",
+      "sharePointUrl": "https://tenant.sharepoint.com/sites/InstallVibe/Media/system-req.png"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "check-001",
+      "text": "Verify administrator access",
+      "required": true,
+      "completed": false
+    },
+    {
+      "id": "check-002",
+      "text": "Check network connectivity",
+      "required": true,
+      "completed": false
+    },
+    {
+      "id": "check-003",
+      "text": "Confirm system meets minimum requirements",
+      "required": true,
+      "completed": false
+    }
+  ]
+}

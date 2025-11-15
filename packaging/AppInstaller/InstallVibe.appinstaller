@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppInstaller
+    xmlns="http://schemas.microsoft.com/appx/appinstaller/2021"
+    Version="1.0.0.0"
+    Uri="https://{tenant}.sharepoint.com/sites/InstallVibe/AppUpdates/InstallVibe.appinstaller">
+
+    <MainPackage
+        Name="InstallVibe"
+        Publisher="CN=InstallVibe"
+        Version="1.0.0.0"
+        ProcessorArchitecture="x64"
+        Uri="https://{tenant}.sharepoint.com/sites/InstallVibe/AppUpdates/InstallVibe_1.0.0.0_x64.msix" />
+
+    <UpdateSettings>
+        <OnLaunch
+            HoursBetweenUpdateChecks="24"
+            ShowPrompt="true"
+            UpdateBlocksActivation="false" />
+        <AutomaticBackgroundTask />
+        <ForceUpdateFromAnyVersion>false</ForceUpdateFromAnyVersion>
+    </UpdateSettings>
+</AppInstaller>
