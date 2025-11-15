@@ -702,7 +702,10 @@ public class SharePointService : ISharePointService
 
             // Quick connectivity check: Get site info
             var stopwatch = Stopwatch.StartNew();
-            var site = await client.Sites.GetByPath(_configuration.SiteUrl.Replace("https://", "").Split('/')[^1], _configuration.SiteUrl.Split('/')[2])
+            var siteUri = new Uri(_configuration.SiteUrl);
+            var hostname = siteUri.Host;
+            var serverRelativeUrl = siteUri.PathAndQuery.Trim('/');
+            var site = await client.Sites[$"{hostname}:/{serverRelativeUrl}"]
                 .GetAsync();
             stopwatch.Stop();
 
@@ -782,9 +785,9 @@ public class SharePointService : ISharePointService
         // Get site ID
         var siteUri = new Uri(_configuration.SiteUrl);
         var hostname = siteUri.Host;
-        var serverRelativeUrl = siteUri.PathAndQuery;
+        var serverRelativeUrl = siteUri.PathAndQuery.Trim('/');
 
-        var site = await client.Sites.GetByPath(serverRelativeUrl.Trim('/'), hostname).GetAsync();
+        var site = await client.Sites[$"{hostname}:/{serverRelativeUrl}"].GetAsync();
 
         if (site?.Id == null)
         {
