@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" msdata:Ordinal="5" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Application Strings -->
+  <data name="AppName" xml:space="preserve">
+    <value>InstallVibe</value>
+  </data>
+  <data name="AppDescription" xml:space="preserve">
+    <value>A Windows desktop application for guided installation workflows</value>
+  </data>
+
+  <!-- Navigation -->
+  <data name="Nav_Guides" xml:space="preserve">
+    <value>Guides</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Nav_About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Nav_Activation" xml:space="preserve">
+    <value>Activation</value>
+  </data>
+
+  <!-- Guides Page -->
+  <data name="Guides_Title" xml:space="preserve">
+    <value>Installation Guides</value>
+  </data>
+  <data name="Guides_SearchPlaceholder" xml:space="preserve">
+    <value>Search guides...</value>
+  </data>
+  <data name="Guides_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Guides_NoGuidesAvailable" xml:space="preserve">
+    <value>No guides available</value>
+  </data>
+  <data name="Guides_LoadError" xml:space="preserve">
+    <value>Failed to load guides</value>
+  </data>
+
+  <!-- Guide Detail Page -->
+  <data name="GuideDetail_Step" xml:space="preserve">
+    <value>Step</value>
+  </data>
+  <data name="GuideDetail_Of" xml:space="preserve">
+    <value>of</value>
+  </data>
+  <data name="GuideDetail_Complete" xml:space="preserve">
+    <value>% Complete</value>
+  </data>
+  <data name="GuideDetail_Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="GuideDetail_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="GuideDetail_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="GuideDetail_MarkComplete" xml:space="preserve">
+    <value>Mark Step Complete</value>
+  </data>
+  <data name="GuideDetail_Completed" xml:space="preserve">
+    <value>Guide Completed!</value>
+  </data>
+  <data name="GuideDetail_CompletedMessage" xml:space="preserve">
+    <value>You have successfully completed this installation guide.</value>
+  </data>
+
+  <!-- Activation Page -->
+  <data name="Activation_Title" xml:space="preserve">
+    <value>Product Activation</value>
+  </data>
+  <data name="Activation_EnterKey" xml:space="preserve">
+    <value>Enter your product key</value>
+  </data>
+  <data name="Activation_Activate" xml:space="preserve">
+    <value>Activate</value>
+  </data>
+  <data name="Activation_Deactivate" xml:space="preserve">
+    <value>Deactivate</value>
+  </data>
+  <data name="Activation_KeyPlaceholder" xml:space="preserve">
+    <value>XXXXX-XXXXX-XXXXX-XXXXX-XXXXX</value>
+  </data>
+  <data name="Activation_Success" xml:space="preserve">
+    <value>Activation successful</value>
+  </data>
+  <data name="Activation_Error" xml:space="preserve">
+    <value>Activation failed</value>
+  </data>
+
+  <!-- Settings Page -->
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Settings_Synchronization" xml:space="preserve">
+    <value>Synchronization</value>
+  </data>
+  <data name="Settings_AutoSync" xml:space="preserve">
+    <value>Automatic sync</value>
+  </data>
+  <data name="Settings_Cache" xml:space="preserve">
+    <value>Cache</value>
+  </data>
+  <data name="Settings_ClearCache" xml:space="preserve">
+    <value>Clear cache</value>
+  </data>
+  <data name="Settings_Save" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="Settings_Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Settings_SaveSuccess" xml:space="preserve">
+    <value>Settings saved successfully</value>
+  </data>
+
+  <!-- About Page -->
+  <data name="About_Title" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="About_LicenseInformation" xml:space="preserve">
+    <value>License Information</value>
+  </data>
+  <data name="About_Resources" xml:space="preserve">
+    <value>Resources</value>
+  </data>
+  <data name="About_SystemInformation" xml:space="preserve">
+    <value>System Information</value>
+  </data>
+  <data name="About_CheckForUpdates" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+
+  <!-- Common -->
+  <data name="Common_Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="Common_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Common_Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Common_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+</root>

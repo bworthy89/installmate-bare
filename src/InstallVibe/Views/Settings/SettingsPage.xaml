@@ -1,0 +1,142 @@
+<Page
+    x:Class="InstallVibe.Views.Settings.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:InstallVibe.ViewModels.Settings"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Padding="24" Spacing="24" MaxWidth="800">
+            <!-- Header -->
+            <TextBlock Text="Settings"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Margin="0,0,0,8"/>
+
+            <!-- Status Message -->
+            <InfoBar Severity="Success"
+                     Message="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                     IsOpen="{x:Bind ViewModel.StatusMessage, Mode=OneWay, Converter={StaticResource StringToBoolConverter}}"
+                     IsClosable="True"
+                     Visibility="{x:Bind ViewModel.StatusMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+            <!-- Appearance Section -->
+            <StackPanel Spacing="16">
+                <TextBlock Text="Appearance"
+                           Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                <!-- Theme Selection -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Theme"
+                               Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <ComboBox SelectedIndex="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay, Converter={StaticResource EnumToIndexConverter}}"
+                              MinWidth="200">
+                        <ComboBoxItem Content="Use system setting"/>
+                        <ComboBoxItem Content="Light"/>
+                        <ComboBoxItem Content="Dark"/>
+                    </ComboBox>
+                    <TextBlock Text="Choose your app theme preference"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Opacity="0.6"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Sync Settings Section -->
+            <StackPanel Spacing="16">
+                <TextBlock Text="Synchronization"
+                           Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                <!-- Auto Sync Toggle -->
+                <ToggleSwitch Header="Automatic sync"
+                              IsOn="{x:Bind ViewModel.AutoSync, Mode=TwoWay}"
+                              OnContent="Enabled"
+                              OffContent="Disabled">
+                    <ToggleSwitch.Description>
+                        <TextBlock Text="Automatically sync guides and content from SharePoint"
+                                   TextWrapping="Wrap"/>
+                    </ToggleSwitch.Description>
+                </ToggleSwitch>
+
+                <!-- SharePoint URL -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="SharePoint URL"
+                               Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <TextBox Text="{x:Bind ViewModel.SharePointUrl, Mode=TwoWay}"
+                             PlaceholderText="https://yourcompany.sharepoint.com/sites/installvibe"
+                             IsSpellCheckEnabled="False"/>
+                    <TextBlock Text="The SharePoint site URL for guide repository"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Opacity="0.6"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Cache Settings Section -->
+            <StackPanel Spacing="16">
+                <TextBlock Text="Cache"
+                           Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                <!-- Cache Lifetime -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Cache lifetime (days)"
+                               Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                    <NumberBox Value="{x:Bind ViewModel.CacheLifetimeDays, Mode=TwoWay}"
+                               Minimum="1"
+                               Maximum="365"
+                               SpinButtonPlacementMode="Inline"
+                               MinWidth="200"
+                               HorizontalAlignment="Left"/>
+                    <TextBlock Text="Number of days to keep cached content"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Opacity="0.6"/>
+                </StackPanel>
+
+                <!-- Clear Cache Button -->
+                <Button Command="{x:Bind ViewModel.ClearCacheCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Delete"/>
+                        <TextBlock Text="Clear cache"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <!-- Advanced Settings Section -->
+            <StackPanel Spacing="16">
+                <TextBlock Text="Advanced"
+                           Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                <!-- Enable Logging Toggle -->
+                <ToggleSwitch Header="Enable logging"
+                              IsOn="{x:Bind ViewModel.EnableLogging, Mode=TwoWay}"
+                              OnContent="Enabled"
+                              OffContent="Disabled">
+                    <ToggleSwitch.Description>
+                        <TextBlock Text="Enable detailed logging for troubleshooting"
+                                   TextWrapping="Wrap"/>
+                    </ToggleSwitch.Description>
+                </ToggleSwitch>
+            </StackPanel>
+
+            <!-- Action Buttons -->
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,24,0,0">
+                <Button Command="{x:Bind ViewModel.SaveSettingsCommand}"
+                        Style="{StaticResource AccentButtonStyle}"
+                        IsEnabled="{x:Bind ViewModel.HasChanges, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Save"/>
+                        <TextBlock Text="Save changes"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Command="{x:Bind ViewModel.ResetSettingsCommand}"
+                        IsEnabled="{x:Bind ViewModel.HasChanges, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Undo"/>
+                        <TextBlock Text="Reset"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -4,27 +4,27 @@ using Microsoft.UI.Xaml.Data;
 namespace InstallVibe.Converters;
 
 /// <summary>
-/// Converts a boolean value to a Visibility value.
+/// Converts a boolean value to an inverted Visibility value.
 /// </summary>
-public class BoolToVisibilityConverter : IValueConverter
+public class InverseBoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         if (value is bool boolValue)
         {
-            return boolValue ? Visibility.Visible : Visibility.Collapsed;
+            return boolValue ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        return Visibility.Collapsed;
+        return Visibility.Visible;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
         if (value is Visibility visibility)
         {
-            return visibility == Visibility.Visible;
+            return visibility == Visibility.Collapsed;
         }
 
-        return false;
+        return true;
     }
 }
