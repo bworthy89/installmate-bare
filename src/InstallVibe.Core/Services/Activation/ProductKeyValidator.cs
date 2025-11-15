@@ -205,7 +205,7 @@ public class ProductKeyValidator : IProductKeyValidator
 
     private string EncodeBase58(byte[] input)
     {
-        var intData = new System.Numerics.BigInteger(input.Reverse().Concat(new byte[] { 0 }).ToArray());
+        var intData = new System.Numerics.BigInteger(Enumerable.Reverse(input).Concat(new byte[] { 0 }).ToArray());
         var result = new StringBuilder();
 
         while (intData > 0)
