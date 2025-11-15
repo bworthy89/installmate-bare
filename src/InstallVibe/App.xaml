@@ -16,6 +16,7 @@
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToTextConverter x:Key="BoolToTextConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:NullToBoolConverter x:Key="NullToBoolConverter" />
             <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
             <converters:FileSizeConverter x:Key="FileSizeConverter" />
             <converters:LicenseTypeToColorConverter x:Key="LicenseTypeToColorConverter" />

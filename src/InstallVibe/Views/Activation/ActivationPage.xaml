@@ -42,7 +42,7 @@
                          CharacterSpacing="50"/>
 
                 <!-- Error Message -->
-                <InfoBar IsOpen="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}"
+                <InfoBar IsOpen="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource NullToBoolConverter}}"
                          Severity="Error"
                          Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
                          IsClosable="True"/>

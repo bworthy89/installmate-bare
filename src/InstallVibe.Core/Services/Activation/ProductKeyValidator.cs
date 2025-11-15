@@ -54,6 +54,15 @@ public class ProductKeyValidator : IProductKeyValidator
     {
         var key = new ProductKey { OriginalKey = productKeyString };
 
+        // === DEVELOPMENT BYPASS ===
+        // Check for test keys (remove this in production!)
+        var testKey = CheckForTestKey(productKeyString);
+        if (testKey != null)
+        {
+            return testKey;
+        }
+        // === END DEVELOPMENT BYPASS ===
+
         // 1. Validate format
         if (!IsValidFormat(productKeyString))
         {
@@ -248,5 +257,51 @@ public class ProductKeyValidator : IProductKeyValidator
         }
 
         return dummySignature;
+    }
+
+    /// <summary>
+    /// Development/Testing bypass for product keys.
+    /// ⚠️ REMOVE THIS IN PRODUCTION!
+    /// </summary>
+    private ProductKey? CheckForTestKey(string productKeyString)
+    {
+        var normalizedKey = productKeyString.Replace("-", "").Trim().ToUpperInvariant();
+
+        // Test key for Tech license (perpetual)
+        if (normalizedKey == "TEST1TEST1TEST1TEST1TEST1" ||
+            productKeyString.Trim().ToUpperInvariant() == "TEST1-TEST1-TEST1-TEST1-TEST1")
+        {
+            return new ProductKey
+            {
+                OriginalKey = productKeyString,
+                IsValid = true,
+                LicenseType = LicenseType.Tech,
+                ExpirationDate = null, // Perpetual
+                CustomerId = 99999,
+                FeatureFlags = 0xFF,
+                Payload = new byte[12],
+                Signature = new byte[256]
+            };
+        }
+
+        // Test key for Admin license (perpetual)
+        if (normalizedKey == "ADMINADMINADMINADMINADMIN" ||
+            productKeyString.Trim().ToUpperInvariant() == "ADMIN-ADMIN-ADMIN-ADMIN-ADMIN")
+        {
+            return new ProductKey
+            {
+                OriginalKey = productKeyString,
+                IsValid = true,
+                LicenseType = LicenseType.Admin,
+                ExpirationDate = null, // Perpetual
+                CustomerId = 88888,
+                FeatureFlags = 0xFF,
+                Payload = new byte[12],
+                Signature = new byte[256]
+            };
+        }
+
+        // No test key matched
+        return null;
     }
 }
