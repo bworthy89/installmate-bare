@@ -190,7 +190,7 @@ public class SharePointService : ISharePointService
 
             // Get file content
             var path = $"/Guides/{guideId}/guide.json";
-            var stream = await client.Sites[_siteId].Drives[_guideDriveId].Items["root"]
+            var stream = await client.Drives[_guideDriveId].Root
                 .ItemWithPath(path)
                 .Content
                 .GetAsync();
@@ -260,7 +260,7 @@ public class SharePointService : ISharePointService
 
             using var stream = new MemoryStream(data);
 
-            var uploadedFile = await client.Sites[_siteId].Drives[_guideDriveId].Items["root"]
+            var uploadedFile = await client.Drives[_guideDriveId].Root
                 .ItemWithPath(filePath)
                 .Content
                 .PutAsync(stream);
@@ -425,7 +425,7 @@ public class SharePointService : ISharePointService
             var client = _graphClientFactory.CreateClient();
 
             // Search for media file by MediaId column
-            var items = await client.Sites[_siteId].Drives[_mediaDriveId].Items
+            var items = await client.Drives[_mediaDriveId].Items
                 .GetAsync(config =>
                 {
                     config.QueryParameters.Filter = $"fields/MediaId eq '{mediaId}'";
@@ -468,7 +468,7 @@ public class SharePointService : ISharePointService
             var client = _graphClientFactory.CreateClient();
 
             // Download using item ID
-            var stream = await client.Sites[_siteId].Drives[_mediaDriveId].Items[metadata.SharePointItemId]
+            var stream = await client.Drives[_mediaDriveId].Items[metadata.SharePointItemId]
                 .Content
                 .GetAsync();
 
@@ -532,7 +532,7 @@ public class SharePointService : ISharePointService
 
             if (fileSize < 4 * 1024 * 1024) // < 4MB: Simple upload
             {
-                uploadedItem = await client.Sites[_siteId].Drives[_mediaDriveId].Items["root"]
+                uploadedItem = await client.Drives[_mediaDriveId].Root
                     .ItemWithPath(filePath)
                     .Content
                     .PutAsync(content);
@@ -972,7 +972,7 @@ public class SharePointService : ISharePointService
             }
         };
 
-        var uploadSession = await client.Sites[_siteId].Drives[_mediaDriveId].Items["root"]
+        var uploadSession = await client.Drives[_mediaDriveId].Root
             .ItemWithPath(filePath)
             .CreateUploadSession
             .PostAsync(uploadSessionRequestBody);
@@ -1072,7 +1072,7 @@ public class SharePointService : ISharePointService
             }
         };
 
-        await client.Sites[_siteId].Drives[_mediaDriveId].Items[itemId]
+        await client.Drives[_mediaDriveId].Items[itemId]
             .PatchAsync(new DriveItem { Fields = fields });
     }
 
