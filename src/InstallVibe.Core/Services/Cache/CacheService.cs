@@ -386,7 +386,7 @@ public class CacheService : ICacheService
                 media.Checksum = checksum;
                 media.CachedDate = DateTime.UtcNow;
                 media.LastAccessed = DateTime.UtcNow;
-                media.AccessCount = (media.AccessCount ?? 0) + 1;
+                media.AccessCount++;
                 await _context.SaveChangesAsync();
             }
         }
