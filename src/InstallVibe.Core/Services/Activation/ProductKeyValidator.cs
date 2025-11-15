@@ -188,7 +188,7 @@ public class ProductKeyValidator : IProductKeyValidator
                 intData = intData * 58 + digit;
             }
 
-            var bytes = intData.ToByteArray().Reverse().ToArray();
+            var bytes = Enumerable.Reverse(intData.ToByteArray()).ToArray();
 
             // Remove leading zeros
             int leadingZeros = input.TakeWhile(c => c == Base58Alphabet[0]).Count();
