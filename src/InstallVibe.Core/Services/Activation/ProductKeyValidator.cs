@@ -1,5 +1,6 @@
 using InstallVibe.Core.Models.Activation;
 using InstallVibe.Infrastructure.Security.Cryptography;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
