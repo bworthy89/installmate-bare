@@ -170,6 +170,7 @@ public partial class StepViewModel : ObservableObject
             if (nextStep != null)
             {
                 CurrentStep = nextStep;
+                await UpdateNavigationState();
             }
             else
             {
@@ -178,7 +179,7 @@ public partial class StepViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error completing step {StepId}", CurrentStep.StepId);
+            _logger.LogError(ex, "Error completing step {StepId}", CurrentStep?.StepId ?? "unknown");
         }
         finally
         {
@@ -205,6 +206,7 @@ public partial class StepViewModel : ObservableObject
             if (nextStep != null)
             {
                 CurrentStep = nextStep;
+                await UpdateNavigationState();
             }
             else
             {
@@ -213,7 +215,7 @@ public partial class StepViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error skipping step {StepId}", CurrentStep.StepId);
+            _logger.LogError(ex, "Error skipping step {StepId}", CurrentStep?.StepId ?? "unknown");
         }
         finally
         {
