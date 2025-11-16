@@ -6,6 +6,7 @@ using InstallVibe.Core.Services.Media;
 using InstallVibe.Core.Services.SharePoint;
 using InstallVibe.Core.Services.User;
 using InstallVibe.Data.Context;
+using InstallVibe.Data.Seeders;
 using InstallVibe.Infrastructure.Configuration;
 using InstallVibe.Infrastructure.Device;
 using InstallVibe.Infrastructure.Security.Cryptography;
@@ -80,6 +81,9 @@ public partial class App : Application
     {
         _window = _serviceProvider.GetRequiredService<MainWindow>();
 
+        // Initialize database and seed sample data
+        await InitializeDatabaseAsync();
+
         // Check activation status and navigate accordingly
         var activationService = _serviceProvider.GetRequiredService<IActivationService>();
         var navigationService = _serviceProvider.GetRequiredService<INavigationService>();
@@ -106,6 +110,31 @@ public partial class App : Application
         }
 
         _window.Activate();
+    }
+
+    private async Task InitializeDatabaseAsync()
+    {
+        try
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<InstallVibeContext>();
+
+            // Ensure database is created and migrations are applied
+            Log.Information("Applying database migrations...");
+            await context.Database.MigrateAsync();
+            Log.Information("Database migrations applied successfully");
+
+            // Seed sample data if database is empty
+            var guideService = scope.ServiceProvider.GetRequiredService<IGuideService>();
+            var seeder = new SampleDataSeeder(guideService);
+            await seeder.SeedAsync();
+            Log.Information("Sample data seeding completed");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to initialize database");
+            throw;
+        }
     }
 
     private IConfiguration BuildConfiguration()
