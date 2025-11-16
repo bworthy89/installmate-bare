@@ -223,10 +223,12 @@ public partial class App : Application
             ?? new Core.Models.Settings.OneDriveSyncSettings();
         services.AddSingleton(oneDriveSettings);
 
+        // Ensure all application directories exist
+        Infrastructure.Constants.PathConstants.EnsureDirectoriesExist();
+        Log.Information("Application directories initialized");
+
         // Database
-        var dbPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "InstallVibe", "Data", "installvibe.db");
+        var dbPath = Infrastructure.Constants.PathConstants.DatabasePath;
 
         services.AddDbContext<InstallVibeContext>(options =>
         {
