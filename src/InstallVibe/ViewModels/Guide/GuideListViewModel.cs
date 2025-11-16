@@ -51,6 +51,9 @@ public partial class GuideListViewModel : ObservableObject
     private string _selectedDifficulty = "All";
 
     [ObservableProperty]
+    private string _selectedStatus = "All";
+
+    [ObservableProperty]
     private ObservableCollection<string> _selectedTags = new();
 
     [ObservableProperty]
@@ -82,6 +85,7 @@ public partial class GuideListViewModel : ObservableObject
 
     public List<string> AvailableCategories { get; private set; } = new();
     public List<string> AvailableDifficulties { get; private set; } = new();
+    public List<string> AvailableStatuses { get; private set; } = new();
     public List<string> AvailableTags { get; private set; } = new();
     public List<string> SortOptions { get; } = new() { "Title", "Date", "Difficulty", "Steps", "Time" };
 
@@ -170,6 +174,11 @@ public partial class GuideListViewModel : ObservableObject
         ApplyFilters();
     }
 
+    partial void OnSelectedStatusChanged(string value)
+    {
+        ApplyFilters();
+    }
+
     partial void OnSortByChanged(string value)
     {
         ApplySorting();
@@ -232,6 +241,7 @@ public partial class GuideListViewModel : ObservableObject
     {
         SelectedCategory = "All";
         SelectedDifficulty = "All";
+        SelectedStatus = "All";
         SelectedTags.Clear();
         SearchText = string.Empty;
         SortBy = "Title";
@@ -284,6 +294,8 @@ public partial class GuideListViewModel : ObservableObject
 
         AvailableDifficulties = new List<string> { "All" };
         AvailableDifficulties.AddRange(GuideDifficulty.All);
+
+        AvailableStatuses = new List<string> { "All", "Draft", "Published", "Archived" };
     }
 
     private void ExtractAvailableTags()
@@ -314,6 +326,12 @@ public partial class GuideListViewModel : ObservableObject
             if (SelectedDifficulty != "All")
             {
                 filtered = filtered.Where(g => g.Difficulty == SelectedDifficulty);
+            }
+
+            // Filter by status
+            if (SelectedStatus != "All")
+            {
+                filtered = filtered.Where(g => g.Status.ToString() == SelectedStatus);
             }
 
             // Filter by tags (guide must have ALL selected tags)
@@ -404,6 +422,7 @@ public partial class GuideListViewModel : ObservableObject
     {
         HasActiveFilters = SelectedCategory != "All" ||
                           SelectedDifficulty != "All" ||
+                          SelectedStatus != "All" ||
                           SelectedTags.Any() ||
                           !string.IsNullOrWhiteSpace(SearchText);
     }

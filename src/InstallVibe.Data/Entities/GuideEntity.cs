@@ -29,6 +29,11 @@ public class GuideEntity
 
     public bool Published { get; set; }
 
+    [MaxLength(20)]
+    public string Status { get; set; } = "Draft";
+
+    public DateTime? PublishedDate { get; set; }
+
     public DateTime LastModified { get; set; }
 
     [Required]

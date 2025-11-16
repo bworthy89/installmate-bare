@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(powershell -Command \"(Get-Content ''src\\InstallVibe\\Views\\Guide\\GuideDetailPage.xaml'') -replace ''ViewModel\\.Guide\\.\\w+, Mode=OneWay'', {$_Groups[0].Value -replace '', Mode=OneWay'', ''''} | Set-Content ''src\\InstallVibe\\Views\\Guide\\GuideDetailPage.xaml''\")",
+      "Bash(dotnet build:*)",
+      "Bash(git checkout:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

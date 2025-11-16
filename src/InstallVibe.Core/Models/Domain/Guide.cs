@@ -43,9 +43,24 @@ public class Guide
     public bool IsPublished { get; set; } = true;
 
     /// <summary>
+    /// Publishing status: Draft, Published, or Archived.
+    /// </summary>
+    public PublishStatus Status { get; set; } = PublishStatus.Draft;
+
+    /// <summary>
+    /// Date when the guide was published (null if never published).
+    /// </summary>
+    public DateTime? PublishedDate { get; set; }
+
+    /// <summary>
     /// Last modification timestamp.
     /// </summary>
     public DateTime LastModified { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Date when the guide was created.
+    /// </summary>
+    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
     /// <summary>
     /// Guide author name.

@@ -266,6 +266,8 @@ public partial class App : Application
         services.AddScoped<IProgressService, ProgressService>();
         services.AddScoped<IFavoritesService, FavoritesService>();
         services.AddScoped<IBackupService, BackupService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<ITagService, TagService>();
         services.AddSingleton<IUserService, UserService>();
         services.AddScoped<IProductKeyValidator, ProductKeyValidator>();
         services.AddScoped<ITokenManager, TokenManager>();

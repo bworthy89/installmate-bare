@@ -97,6 +97,12 @@ public partial class GuideEditorViewModel : ObservableValidator
     [ObservableProperty]
     private StepEditorItem? _selectedStep;
 
+    [ObservableProperty]
+    private bool _isPreviewMode = false;
+
+    [ObservableProperty]
+    private Guide? _previewGuide;
+
     // Tag/Prerequisite input
     [ObservableProperty]
     private string _newTagInput = string.Empty;
@@ -111,8 +117,10 @@ public partial class GuideEditorViewModel : ObservableValidator
     public bool IsEditMode => !_isNewGuide;
     public string PageTitle => _isNewGuide ? "Create New Guide" : $"Edit: {Title}";
     public bool HasAnyErrors => HasErrors;
-    public bool CanSaveDraft => !HasErrors && !IsSaving;
-    public bool CanPublish => !HasErrors && Steps.Count > 0 && !IsPublishing;
+    public bool CanSaveDraft => !HasErrors && !IsSaving && !IsPreviewMode;
+    public bool CanPublish => !HasErrors && Steps.Count > 0 && !IsPublishing && !IsPreviewMode;
+    public bool CanTogglePreview => true; // Always allow toggling, will show empty state if needed
+    public string PreviewButtonText => IsPreviewMode ? "Edit Mode" : "Preview Mode";
 
     // Validation error properties for binding
     public IEnumerable<string> TitleErrors => GetErrors(nameof(Title))
@@ -337,6 +345,26 @@ public partial class GuideEditorViewModel : ObservableValidator
     }
 
     /// <summary>
+    /// Notify when IsPreviewMode changes (affects multiple properties).
+    /// </summary>
+    partial void OnIsPreviewModeChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanSaveDraft));
+        OnPropertyChanged(nameof(CanPublish));
+        OnPropertyChanged(nameof(PreviewButtonText));
+
+        if (value)
+        {
+            // Generate preview guide
+            PreviewGuide = BuildGuideModel();
+        }
+        else
+        {
+            PreviewGuide = null;
+        }
+    }
+
+    /// <summary>
     /// Cleanup resources when ViewModel is disposed.
     /// </summary>
     public void Dispose()
@@ -348,6 +376,10 @@ public partial class GuideEditorViewModel : ObservableValidator
     /// <summary>
     /// Loads an existing guide for editing.
     /// </summary>
+    private DateTime _loadedCreatedDate = DateTime.UtcNow;
+    private PublishStatus _loadedStatus = PublishStatus.Draft;
+    private DateTime? _loadedPublishedDate;
+
     public async Task LoadGuideAsync(string guideId)
     {
         try
@@ -362,6 +394,11 @@ public partial class GuideEditorViewModel : ObservableValidator
 
             _originalGuideId = guideId;
             _isNewGuide = false;
+
+            // Preserve dates and status for existing guide
+            _loadedCreatedDate = guide.CreatedDate;
+            _loadedStatus = guide.Status;
+            _loadedPublishedDate = guide.PublishedDate;
 
             // Load metadata
             GuideId = guide.GuideId;
@@ -558,6 +595,13 @@ public partial class GuideEditorViewModel : ObservableValidator
             }
 
             var guide = BuildGuideModel();
+
+            // Keep as draft (don't change status if already published)
+            if (guide.Status != PublishStatus.Published)
+            {
+                guide.Status = PublishStatus.Draft;
+            }
+
             await _guideService.SaveGuideAsync(guide);
 
             // If this was a new guide, it's no longer new after first save
@@ -596,7 +640,7 @@ public partial class GuideEditorViewModel : ObservableValidator
         }
 
         IsPublishing = true;
-        StatusMessage = "Publishing guide locally...";
+        StatusMessage = "Publishing guide...";
 
         try
         {
@@ -608,6 +652,8 @@ public partial class GuideEditorViewModel : ObservableValidator
 
             // Mark as published
             guide.IsPublished = true;
+            guide.Status = PublishStatus.Published;
+            guide.PublishedDate = DateTime.UtcNow;
             guide.LastModified = DateTime.UtcNow;
 
             // Save locally
@@ -617,8 +663,17 @@ public partial class GuideEditorViewModel : ObservableValidator
             // Upload to SharePoint (NoOp in local-only mode)
             var uploadSuccess = await _sharePointService.UploadGuideAsync(guide);
 
-            StatusMessage = $"Published successfully (v{Version})";
-            _logger.LogInformation("Published guide: {GuideId} v{Version}", guide.GuideId, Version);
+            StatusMessage = $"Published successfully (v{Version}) - Now visible to all technicians";
+            _logger.LogInformation("Published guide: {GuideId} v{Version} on {Date}", guide.GuideId, Version, guide.PublishedDate);
+
+            // If this was a new guide, it's no longer new
+            if (_isNewGuide)
+            {
+                _isNewGuide = false;
+                _originalGuideId = guide.GuideId;
+                OnPropertyChanged(nameof(PageTitle));
+                OnPropertyChanged(nameof(IsEditMode));
+            }
 
             // Navigate back to guide list
             await Task.Delay(1500); // Show success message
@@ -639,6 +694,78 @@ public partial class GuideEditorViewModel : ObservableValidator
     private void Cancel()
     {
         _navigationService.NavigateTo("GuideList");
+    }
+
+    [RelayCommand]
+    private void TogglePreview()
+    {
+        IsPreviewMode = !IsPreviewMode;
+    }
+
+    [RelayCommand]
+    private async Task UnpublishAsync()
+    {
+        if (_isNewGuide)
+            return;
+
+        try
+        {
+            IsPublishing = true;
+            StatusMessage = "Unpublishing guide...";
+
+            var guide = BuildGuideModel();
+            guide.Status = PublishStatus.Draft;
+            guide.IsPublished = false;
+
+            await _guideService.SaveGuideAsync(guide);
+
+            StatusMessage = "Guide unpublished (moved to draft)";
+            _logger.LogInformation("Unpublished guide: {GuideId}", guide.GuideId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error unpublishing guide");
+            StatusMessage = "Error unpublishing guide";
+        }
+        finally
+        {
+            IsPublishing = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ArchiveAsync()
+    {
+        if (_isNewGuide)
+            return;
+
+        try
+        {
+            IsPublishing = true;
+            StatusMessage = "Archiving guide...";
+
+            var guide = BuildGuideModel();
+            guide.Status = PublishStatus.Archived;
+            guide.IsPublished = false;
+
+            await _guideService.SaveGuideAsync(guide);
+
+            StatusMessage = "Guide archived";
+            _logger.LogInformation("Archived guide: {GuideId}", guide.GuideId);
+
+            // Navigate back to guide list after archiving
+            await Task.Delay(1000);
+            _navigationService.NavigateTo("GuideList");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error archiving guide");
+            StatusMessage = "Error archiving guide";
+        }
+        finally
+        {
+            IsPublishing = false;
+        }
     }
 
     private bool ValidateGuide()
@@ -678,6 +805,9 @@ public partial class GuideEditorViewModel : ObservableValidator
             Version = Version,
             Author = Author,
             Tags = Tags.ToList(),
+            Status = _loadedStatus, // Preserve status unless explicitly changed
+            CreatedDate = _loadedCreatedDate, // Preserve original creation date
+            PublishedDate = _loadedPublishedDate, // Preserve original publish date
             Metadata = new GuideMetadata
             {
                 Prerequisites = Prerequisites.ToList()

@@ -94,6 +94,9 @@ namespace InstallVibe.Data.Migrations
                     b.Property<bool>("Published")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("PublishedDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("RequiredLicense")
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
@@ -104,6 +107,13 @@ namespace InstallVibe.Data.Migrations
 
                     b.Property<int>("StepCount")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("Draft");
 
                     b.Property<string>("SyncStatus")
                         .IsRequired()
