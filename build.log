@@ -1,6 +1,0 @@
-MSBuild version 18.0.2+b0f34d51f for .NET
-  InstallVibe.Infrastructure -> C:\Users\bwort\OneDrive\Desktop\New folder (3)\src\InstallVibe.Infrastructure\bin\x64\Debug\net8.0-windows10.0.19041.0\InstallVibe.Infrastructure.dll
-  InstallVibe.Data -> C:\Users\bwort\OneDrive\Desktop\New folder (3)\src\InstallVibe.Data\bin\x64\Debug\net8.0\InstallVibe.Data.dll
-  InstallVibe.Core -> C:\Users\bwort\OneDrive\Desktop\New folder (3)\src\InstallVibe.Core\bin\x64\Debug\net8.0-windows10.0.19041.0\InstallVibe.Core.dll
-  InstallVibe -> C:\Users\bwort\OneDrive\Desktop\New folder (3)\src\InstallVibe\bin\x64\Debug\net8.0-windows10.0.19041.0\InstallVibe.dll
-C:\Program Files\dotnet\sdk\10.0.100\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.Publish.targets(217,5): warning NETSDK1198: A publish profile with the name 'win-x64.pubxml' was not found in the project. Set the PublishProfile property to a valid file name. [C:\Users\bwort\OneDrive\Desktop\New folder (3)\src\InstallVibe\InstallVibe.csproj]
