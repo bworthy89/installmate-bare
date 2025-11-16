@@ -63,6 +63,16 @@ public class Guide
     public List<string> Tags { get; set; } = new();
 
     /// <summary>
+    /// Target audience for this guide (e.g., "System Administrators", "Help Desk Technicians").
+    /// </summary>
+    public string? TargetAudience { get; set; }
+
+    /// <summary>
+    /// Difficulty level: Easy, Medium, or Hard.
+    /// </summary>
+    public string Difficulty { get; set; } = "Medium";
+
+    /// <summary>
     /// Ordered list of steps in the guide.
     /// </summary>
     public List<Step> Steps { get; set; } = new();
