@@ -115,10 +115,21 @@ public partial class GuideEditorViewModel : ObservableValidator
     public bool CanPublish => !HasErrors && Steps.Count > 0 && !IsPublishing;
 
     // Validation error properties for binding
-    public IEnumerable<string> TitleErrors => GetErrors(nameof(Title)).Cast<string>();
-    public IEnumerable<string> DescriptionErrors => GetErrors(nameof(Description)).Cast<string>();
-    public IEnumerable<string> SelectedCategoryErrors => GetErrors(nameof(SelectedCategory)).Cast<string>();
-    public IEnumerable<string> SelectedDifficultyErrors => GetErrors(nameof(SelectedDifficulty)).Cast<string>();
+    public IEnumerable<string> TitleErrors => GetErrors(nameof(Title))
+        .OfType<System.ComponentModel.DataAnnotations.ValidationResult>()
+        .Select(vr => vr.ErrorMessage ?? string.Empty);
+
+    public IEnumerable<string> DescriptionErrors => GetErrors(nameof(Description))
+        .OfType<System.ComponentModel.DataAnnotations.ValidationResult>()
+        .Select(vr => vr.ErrorMessage ?? string.Empty);
+
+    public IEnumerable<string> SelectedCategoryErrors => GetErrors(nameof(SelectedCategory))
+        .OfType<System.ComponentModel.DataAnnotations.ValidationResult>()
+        .Select(vr => vr.ErrorMessage ?? string.Empty);
+
+    public IEnumerable<string> SelectedDifficultyErrors => GetErrors(nameof(SelectedDifficulty))
+        .OfType<System.ComponentModel.DataAnnotations.ValidationResult>()
+        .Select(vr => vr.ErrorMessage ?? string.Empty);
 
     public GuideEditorViewModel(
         IGuideService guideService,
