@@ -2,7 +2,9 @@ using InstallVibe.Core.Services.Activation;
 using InstallVibe.Core.Services.Cache;
 using InstallVibe.Core.Services.Data;
 using InstallVibe.Core.Services.Engine;
+using InstallVibe.Core.Services.Export;
 using InstallVibe.Core.Services.Media;
+using InstallVibe.Core.Services.OneDrive;
 using InstallVibe.Core.Services.SharePoint;
 using InstallVibe.Core.Services.User;
 using InstallVibe.Data.Context;
@@ -109,7 +111,58 @@ public partial class App : Application
             navigationService.NavigateTo("WelcomeSetup");
         }
 
+        // Start OneDrive auto-sync if enabled and configured
+        await StartOneDriveSyncIfEnabledAsync();
+
         _window.Activate();
+    }
+
+    private async Task StartOneDriveSyncIfEnabledAsync()
+    {
+        try
+        {
+            var oneDriveService = _serviceProvider.GetRequiredService<IOneDriveSyncService>();
+            var settings = await oneDriveService.GetSettingsAsync();
+
+            if (settings.Enabled)
+            {
+                Log.Information("OneDrive sync is enabled");
+
+                // Run initial sync on startup if configured
+                if (settings.SyncOnStartup)
+                {
+                    Log.Information("Running initial OneDrive sync on startup");
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var result = await oneDriveService.SyncNowAsync();
+                            Log.Information(
+                                "Startup OneDrive sync completed: Downloaded={Downloaded}, Imported={Imported}, Failed={Failed}",
+                                result.FilesDownloaded,
+                                result.FilesImported,
+                                result.FilesFailed);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex, "Error during startup OneDrive sync");
+                        }
+                    });
+                }
+
+                // Start auto-sync timer
+                await oneDriveService.StartAutoSyncAsync();
+                Log.Information("OneDrive auto-sync started");
+            }
+            else
+            {
+                Log.Information("OneDrive sync is disabled");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error starting OneDrive sync");
+        }
     }
 
     private async Task InitializeDatabaseAsync()
@@ -162,6 +215,14 @@ public partial class App : Application
             ?? new SharePointConfiguration();
         services.AddSingleton(sharePointConfig);
 
+        var appSettings = configuration.GetSection("AppSettings").Get<Core.Models.Settings.AppSettings>()
+            ?? new Core.Models.Settings.AppSettings();
+        services.AddSingleton(appSettings);
+
+        var oneDriveSettings = configuration.GetSection("OneDrive").Get<Core.Models.Settings.OneDriveSyncSettings>()
+            ?? new Core.Models.Settings.OneDriveSyncSettings();
+        services.AddSingleton(oneDriveSettings);
+
         // Database
         var dbPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -184,14 +245,29 @@ public partial class App : Application
         services.AddScoped<IGuideService, GuideService>();
         services.AddScoped<IProgressService, ProgressService>();
         services.AddScoped<IFavoritesService, FavoritesService>();
+        services.AddScoped<IBackupService, BackupService>();
         services.AddSingleton<IUserService, UserService>();
         services.AddScoped<IProductKeyValidator, ProductKeyValidator>();
         services.AddScoped<ITokenManager, TokenManager>();
         services.AddScoped<IActivationService, ActivationService>();
         services.AddScoped<ILicenseManager, LicenseManager>();
-        services.AddScoped<ISharePointService, SharePointService>();
+
+        // SharePoint Service - Use feature flag to determine implementation
+        if (appSettings.UseSharePoint)
+        {
+            services.AddScoped<ISharePointService, SharePointService>();
+            Log.Information("Using SharePoint integration mode");
+        }
+        else
+        {
+            services.AddScoped<ISharePointService, NoOpSharePointService>();
+            Log.Information("Using local-only mode (SharePoint disabled)");
+        }
+
         services.AddScoped<IMediaService, MediaService>();
         services.AddScoped<IGuideEngine, GuideEngine>();
+        services.AddScoped<IGuideArchiveService, GuideArchiveService>();
+        services.AddSingleton<IOneDriveSyncService, OneDriveSyncService>();
 
         // UI Services
         services.AddSingleton<INavigationService>(sp =>

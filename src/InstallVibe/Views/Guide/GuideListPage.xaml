@@ -37,18 +37,49 @@
                 </StackPanel>
             </Button>
 
-            <!-- Admin Create Guide Button -->
-            <Button Grid.Column="2"
-                    Command="{x:Bind ViewModel.CreateGuideCommand}"
-                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                    Style="{StaticResource AccentButtonStyle}"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE710;" FontSize="16"/>
-                    <TextBlock Text="Create Guide"/>
-                </StackPanel>
-            </Button>
+            <!-- Admin Options Button -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center">
+                <!-- OneDrive Sync Button -->
+                <Button Visibility="{x:Bind ViewModel.OneDriveSyncEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Command="{x:Bind ViewModel.SyncFromOneDriveCommand}"
+                        IsEnabled="{x:Bind ViewModel.IsSyncingFromOneDrive, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                        ToolTipService.ToolTip="Sync guides from OneDrive">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ProgressRing IsActive="{x:Bind ViewModel.IsSyncingFromOneDrive, Mode=OneWay}"
+                                      Visibility="{x:Bind ViewModel.IsSyncingFromOneDrive, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                      Width="16" Height="16"/>
+                        <FontIcon Glyph="&#xE895;" FontSize="16"
+                                  Visibility="{x:Bind ViewModel.IsSyncingFromOneDrive, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                        <TextBlock Text="{x:Bind ViewModel.SyncStatus, Mode=OneWay}"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Admin Options Button -->
+                <Button Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Button.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedRight">
+                            <MenuFlyoutItem Text="Create New Guide"
+                                            Command="{x:Bind ViewModel.CreateGuideCommand}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE710;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="Import Guide"
+                                            Command="{x:Bind ViewModel.ImportGuideCommand}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8B5;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE713;" FontSize="16"/>
+                        <TextBlock Text="Admin Options"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Grid>
 
         <!-- Filter Bar -->
