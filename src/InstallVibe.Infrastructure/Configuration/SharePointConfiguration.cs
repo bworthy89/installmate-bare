@@ -93,8 +93,13 @@ public class SharePointConfiguration
     /// <summary>
     /// Validates the configuration.
     /// </summary>
-    public void Validate()
+    /// <param name="validateAuthentication">Whether to validate authentication credentials (set to false for local-only mode)</param>
+    public void Validate(bool validateAuthentication = true)
     {
+        // Skip all validation if authentication is not required (local-only mode)
+        if (!validateAuthentication)
+            return;
+
         if (string.IsNullOrWhiteSpace(TenantId))
             throw new InvalidOperationException("SharePoint TenantId is required");
 

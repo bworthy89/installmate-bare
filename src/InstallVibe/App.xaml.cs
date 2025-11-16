@@ -240,7 +240,25 @@ public partial class App : Application
         services.AddSingleton<IRsaValidator, RsaValidator>();
         services.AddSingleton<IDpapiEncryption, DpapiEncryption>();
         services.AddSingleton<IDeviceIdProvider, DeviceIdProvider>();
-        services.AddSingleton<IGraphClientFactory, GraphClientFactory>();
+
+        // GraphClientFactory - only validate configuration if SharePoint is enabled
+        services.AddSingleton<IGraphClientFactory>(sp =>
+        {
+            var config = sp.GetRequiredService<SharePointConfiguration>();
+            var logger = sp.GetRequiredService<ILogger<GraphClientFactory>>();
+
+            // Validate SharePoint configuration only if it's being used
+            if (appSettings.UseSharePoint)
+            {
+                config.Validate(validateAuthentication: true);
+            }
+            else
+            {
+                config.Validate(validateAuthentication: false);
+            }
+
+            return new GraphClientFactory(config, logger, skipValidation: true);
+        });
 
         // Core Services
         services.AddScoped<ICacheService, CacheService>();

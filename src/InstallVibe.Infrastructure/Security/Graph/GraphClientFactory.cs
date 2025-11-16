@@ -19,13 +19,17 @@ public class GraphClientFactory : IGraphClientFactory
 
     public GraphClientFactory(
         SharePointConfiguration configuration,
-        ILogger<GraphClientFactory> logger)
+        ILogger<GraphClientFactory> logger,
+        bool skipValidation = false)
     {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        // Validate configuration on construction
-        _configuration.Validate();
+        // Validate configuration on construction (unless explicitly skipped)
+        if (!skipValidation)
+        {
+            _configuration.Validate();
+        }
     }
 
     /// <inheritdoc/>
