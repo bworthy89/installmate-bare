@@ -9,6 +9,7 @@ using InstallVibe.Core.Services.User;
 using InstallVibe.Services.Navigation;
 using InstallVibe.Views.Shell;
 using Microsoft.Extensions.Logging;
+using Microsoft.UI.Dispatching;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using Windows.System;
@@ -31,6 +32,7 @@ public partial class GuideEditorViewModel : ObservableValidator
     private bool _isNewGuide;
     private System.Threading.Timer? _autoSaveTimer;
     private DateTime _lastUserEdit = DateTime.Now;
+    private readonly Microsoft.UI.Dispatching.DispatcherQueue _dispatcherQueue;
 
     // Guide Metadata
     [ObservableProperty]
@@ -126,9 +128,12 @@ public partial class GuideEditorViewModel : ObservableValidator
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+        // Get the dispatcher queue for the current thread (UI thread)
+        _dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+
         // Initialize auto-save timer (30 seconds)
         _autoSaveTimer = new System.Threading.Timer(
-            async _ => await OnAutoSaveTickAsync(),
+            _ => OnAutoSaveTick(),
             null,
             TimeSpan.FromSeconds(30),
             TimeSpan.FromSeconds(30));
@@ -181,22 +186,27 @@ public partial class GuideEditorViewModel : ObservableValidator
 
     /// <summary>
     /// Auto-save timer tick handler. Saves draft every 30 seconds if conditions are met.
+    /// This runs on a background thread, so we marshal back to the UI thread.
     /// </summary>
-    private async Task OnAutoSaveTickAsync()
+    private void OnAutoSaveTick()
     {
-        // Only auto-save if:
-        // 1. Not a new unsaved guide (must have been saved at least once)
-        // 2. Title is not empty
-        // 3. Not currently saving manually
-        // 4. User hasn't edited in last 5 seconds (debounce)
-
-        if (!_isNewGuide &&
-            !string.IsNullOrWhiteSpace(Title) &&
-            !IsSaving &&
-            (DateTime.Now - _lastUserEdit).TotalSeconds >= 5)
+        // Marshal to UI thread for property updates
+        _dispatcherQueue.TryEnqueue(async () =>
         {
-            await AutoSaveAsync();
-        }
+            // Only auto-save if:
+            // 1. Not a new unsaved guide (must have been saved at least once)
+            // 2. Title is not empty
+            // 3. Not currently saving manually
+            // 4. User hasn't edited in last 5 seconds (debounce)
+
+            if (!_isNewGuide &&
+                !string.IsNullOrWhiteSpace(Title) &&
+                !IsSaving &&
+                (DateTime.Now - _lastUserEdit).TotalSeconds >= 5)
+            {
+                await AutoSaveAsync();
+            }
+        });
     }
 
     /// <summary>
