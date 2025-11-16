@@ -70,13 +70,18 @@
                     <TextBlock Text="Quick Resume"
                                Style="{StaticResource TitleTextBlockStyle}"/>
 
-                    <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
-                            CornerRadius="8"
-                            Padding="24"
-                            PointerPressed="LastAccessedCard_PointerPressed"
-                            PointerEntered="Card_PointerEntered"
-                            PointerExited="Card_PointerExited">
-                        <Grid>
+                    <Button Command="{x:Bind ViewModel.OpenGuideCommand}"
+                            CommandParameter="{x:Bind ViewModel.LastAccessedGuide.GuideId, Mode=OneWay}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Padding="0"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            AutomationProperties.Name="Resume last accessed guide">
+                        <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                CornerRadius="8"
+                                Padding="24">
+                            <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -117,7 +122,8 @@
                                       VerticalAlignment="Center"
                                       Margin="24,0,0,0"/>
                         </Grid>
-                    </Border>
+                        </Border>
+                    </Button>
                 </StackPanel>
 
                 <!-- Continue Your Work Section -->
