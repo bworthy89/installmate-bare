@@ -203,7 +203,7 @@
                                                     Background="{ThemeResource AccentFillColorDefaultBrush}"
                                                     Width="32" Height="32"
                                                     CornerRadius="16">
-                                                <TextBlock Text="{x:Bind OrderIndex, Mode=OneWay}"
+                                                <TextBlock Text="{x:Bind OrderIndex}"
                                                            Style="{StaticResource BodyStrongTextBlockStyle}"
                                                            Foreground="White"
                                                            HorizontalAlignment="Center"
@@ -211,7 +211,7 @@
                                             </Border>
 
                                             <TextBlock Grid.Column="1"
-                                                       Text="{x:Bind Title, Mode=OneWay}"
+                                                       Text="{x:Bind Title}"
                                                        Style="{StaticResource BodyTextBlockStyle}"
                                                        VerticalAlignment="Center"/>
                                         </Grid>
