@@ -42,6 +42,45 @@ public partial class StepViewModel : ObservableObject
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    public async Task LoadGuideAsync(string guideId)
+    {
+        try
+        {
+            _logger.LogInformation("Loading guide {GuideId} for step view", guideId);
+            CurrentGuideId = guideId;
+
+            // TODO: Get actual user ID from authentication service
+            var userId = Environment.UserName; // Temporary: use Windows username
+
+            // Start or resume guide to get progress
+            var progress = await _guideEngine.StartGuideAsync(guideId, userId);
+            CurrentProgressId = progress.ProgressId;
+
+            // Load the current step
+            if (!string.IsNullOrEmpty(progress.CurrentStepId))
+            {
+                CurrentStep = await _guideEngine.GetStepAsync(guideId, progress.CurrentStepId);
+
+                if (CurrentStep != null)
+                {
+                    _logger.LogInformation("Loaded step {StepId} for guide {GuideId}", CurrentStep.StepId, guideId);
+                }
+                else
+                {
+                    _logger.LogWarning("Current step {StepId} not found for guide {GuideId}", progress.CurrentStepId, guideId);
+                }
+            }
+            else
+            {
+                _logger.LogWarning("No current step ID found in progress for guide {GuideId}", guideId);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading guide {GuideId} for step view", guideId);
+        }
+    }
+
     [RelayCommand]
     private async Task CompleteStepAsync()
     {

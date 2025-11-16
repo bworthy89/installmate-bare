@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using InstallVibe.ViewModels.Guides;
 
 namespace InstallVibe.Views.Guides;
@@ -15,5 +16,15 @@ public sealed partial class StepPage : Page
         ViewModel = App.GetService<StepViewModel>();
         InitializeComponent();
         DataContext = ViewModel;
+    }
+
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        if (e.Parameter is string guideId)
+        {
+            await ViewModel.LoadGuideAsync(guideId);
+        }
     }
 }
