@@ -1,3 +1,4 @@
+using InstallVibe.Core.Services.Activation;
 using Microsoft.Extensions.Logging;
 
 namespace InstallVibe.Core.Services.User;
@@ -9,12 +10,16 @@ namespace InstallVibe.Core.Services.User;
 public class UserService : IUserService
 {
     private readonly ILogger<UserService> _logger;
+    private readonly ILicenseManager _licenseManager;
     private string? _cachedUserId;
     private string? _cachedUserName;
 
-    public UserService(ILogger<UserService> logger)
+    public UserService(
+        ILogger<UserService> logger,
+        ILicenseManager licenseManager)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _licenseManager = licenseManager ?? throw new ArgumentNullException(nameof(licenseManager));
     }
 
     /// <summary>
@@ -62,6 +67,26 @@ public class UserService : IUserService
         {
             _logger.LogError(ex, "Failed to get current user name");
             throw new InvalidOperationException("Failed to retrieve current user information", ex);
+        }
+    }
+
+    /// <summary>
+    /// Checks if the current user has administrator privileges.
+    /// Checks if the product key grants Admin license type.
+    /// </summary>
+    public async Task<bool> IsAdminAsync()
+    {
+        try
+        {
+            var isAdmin = await _licenseManager.IsAdminLicenseAsync();
+            var userId = await GetCurrentUserIdAsync();
+            _logger.LogDebug("Admin check for user {UserId}: {IsAdmin}", userId, isAdmin);
+            return isAdmin;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to check admin status");
+            return false; // Deny access on error
         }
     }
 }

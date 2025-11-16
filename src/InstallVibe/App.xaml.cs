@@ -206,6 +206,7 @@ public partial class App : Application
             nav.RegisterPage<DashboardPage>("Dashboard");
             nav.RegisterPage<GuideListPage>("GuideList");
             nav.RegisterPage<GuideDetailPage>("GuideDetail");
+            nav.RegisterPage<GuideEditorPage>("GuideEditor");
             nav.RegisterPage<StepPage>("Step");
             nav.RegisterPage<SettingsPage>("Settings");
             nav.RegisterPage<AdminEditorPage>("AdminEditor");
@@ -220,6 +221,7 @@ public partial class App : Application
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<GuideListViewModel>();
         services.AddTransient<GuideDetailViewModel>();
+        services.AddTransient<GuideEditorViewModel>();
         services.AddTransient<StepViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<AdminEditorViewModel>();
@@ -231,6 +233,7 @@ public partial class App : Application
         services.AddTransient<DashboardPage>();
         services.AddTransient<GuideListPage>();
         services.AddTransient<GuideDetailPage>();
+        services.AddTransient<GuideEditorPage>();
         services.AddTransient<StepPage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<AdminEditorPage>();

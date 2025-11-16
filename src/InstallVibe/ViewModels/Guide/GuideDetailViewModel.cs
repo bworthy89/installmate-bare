@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using InstallVibe.Core.Models.Domain;
 using InstallVibe.Core.Services.Data;
 using InstallVibe.Core.Services.Engine;
+using InstallVibe.Core.Services.User;
 using InstallVibe.Services.Navigation;
 using Microsoft.Extensions.Logging;
 
@@ -16,6 +17,7 @@ public partial class GuideDetailViewModel : ObservableObject
     private readonly IGuideService _guideService;
     private readonly IGuideEngine _guideEngine;
     private readonly INavigationService _navigationService;
+    private readonly IUserService _userService;
     private readonly ILogger<GuideDetailViewModel> _logger;
 
     [ObservableProperty]
@@ -26,6 +28,9 @@ public partial class GuideDetailViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isStarting = false;
+
+    [ObservableProperty]
+    private bool _isAdmin = false;
 
     public bool HasTags => Guide?.Tags?.Count > 0;
     public bool HasPrerequisites => Guide?.Prerequisites?.Count > 0;
@@ -42,12 +47,29 @@ public partial class GuideDetailViewModel : ObservableObject
         IGuideService guideService,
         IGuideEngine guideEngine,
         INavigationService navigationService,
+        IUserService userService,
         ILogger<GuideDetailViewModel> logger)
     {
         _guideService = guideService ?? throw new ArgumentNullException(nameof(guideService));
         _guideEngine = guideEngine ?? throw new ArgumentNullException(nameof(guideEngine));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+        _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        _ = CheckAdminStatusAsync();
+    }
+
+    private async Task CheckAdminStatusAsync()
+    {
+        try
+        {
+            IsAdmin = await _userService.IsAdminAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking admin status");
+            IsAdmin = false;
+        }
     }
 
     public async Task LoadGuideAsync(string guideId)
@@ -89,6 +111,34 @@ public partial class GuideDetailViewModel : ObservableObject
         finally
         {
             IsStarting = false;
+        }
+    }
+
+    [RelayCommand]
+    private void EditGuide()
+    {
+        if (Guide == null) return;
+
+        _logger.LogInformation("Navigating to Guide Editor for guide {GuideId}", Guide.GuideId);
+        _navigationService.NavigateTo("GuideEditor", Guide.GuideId);
+    }
+
+    [RelayCommand]
+    private async Task DeleteGuideAsync()
+    {
+        if (Guide == null) return;
+
+        try
+        {
+            _logger.LogInformation("Deleting guide {GuideId}", Guide.GuideId);
+            await _guideService.DeleteGuideAsync(Guide.GuideId);
+
+            // Navigate back to guide list after deletion
+            _navigationService.NavigateTo("GuideList");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting guide {GuideId}", Guide.GuideId);
         }
     }
 }

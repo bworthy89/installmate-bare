@@ -18,7 +18,13 @@
 
         <!--Back Button & Title-->
         <Grid Grid.Row="0" Margin="24,16,24,12">
-            <Button
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
                 Command="{x:Bind ViewModel.GoBackCommand}"
                 Background="Transparent"
                 BorderBrush="Transparent"
@@ -28,6 +34,19 @@
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon Glyph="&#xE72B;" FontSize="16"/>
                     <TextBlock Text="Back to Dashboard"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Admin Create Guide Button -->
+            <Button Grid.Column="2"
+                    Command="{x:Bind ViewModel.CreateGuideCommand}"
+                    Visibility="{x:Bind ViewModel.IsAdmin, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE710;" FontSize="16"/>
+                    <TextBlock Text="Create Guide"/>
                 </StackPanel>
             </Button>
         </Grid>

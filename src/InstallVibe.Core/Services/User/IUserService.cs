@@ -16,4 +16,10 @@ public interface IUserService
     /// </summary>
     /// <returns>The current user's display name.</returns>
     Task<string> GetCurrentUserNameAsync();
+
+    /// <summary>
+    /// Checks if the current user has administrator privileges.
+    /// </summary>
+    /// <returns>True if the user is an administrator, false otherwise.</returns>
+    Task<bool> IsAdminAsync();
 }

@@ -18,6 +18,7 @@
             <converters:BoolToGlyphConverter x:Key="BoolToGlyphConverter" />
             <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:InverseNullToVisibilityConverter x:Key="InverseNullToVisibilityConverter" />
             <converters:NullToBoolConverter x:Key="NullToBoolConverter" />
             <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
             <converters:FileSizeConverter x:Key="FileSizeConverter" />

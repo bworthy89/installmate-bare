@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="InstallVibe.Views.Guides.GuideEditorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:InstallVibe.ViewModels.Guides"
+    xmlns:converters="using:InstallVibe.Converters"
+    mc:Ignorable="d"
+    x:Name="RootPage">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Content -->
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+              Padding="24,16" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+              BorderThickness="0,0,0,1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}"
+                           Style="{StaticResource TitleTextBlockStyle}"
+                           FontWeight="SemiBold"/>
+                <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- Action Buttons -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Content="Save Draft"
+                        Command="{x:Bind ViewModel.SaveDraftCommand}"
+                        IsEnabled="{x:Bind ViewModel.IsSaving, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                        Style="{StaticResource AccentButtonStyle}"/>
+                <Button Content="Publish"
+                        Command="{x:Bind ViewModel.PublishToSharePointCommand}"
+                        IsEnabled="{x:Bind ViewModel.IsPublishing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                <Button Content="Cancel"
+                        Command="{x:Bind ViewModel.CancelCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" Padding="24">
+            <Grid ColumnSpacing="24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/> <!-- Left: Metadata and Steps List -->
+                    <ColumnDefinition Width="3*"/> <!-- Right: Step Editor -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Column: Metadata + Steps List -->
+                <StackPanel Grid.Column="0" Spacing="24">
+
+                    <!-- Guide Metadata Section -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="20">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="Guide Information"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                       FontWeight="SemiBold"/>
+
+                            <!-- Title -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Title *"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox Text="{x:Bind ViewModel.Title, Mode=TwoWay}"
+                                         PlaceholderText="Enter guide title"/>
+                            </StackPanel>
+
+                            <!-- Description -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Description *"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox Text="{x:Bind ViewModel.Description, Mode=TwoWay}"
+                                         PlaceholderText="Enter guide description"
+                                         TextWrapping="Wrap"
+                                         AcceptsReturn="True"
+                                         MinHeight="80"/>
+                            </StackPanel>
+
+                            <!-- Category and Difficulty -->
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Spacing="4">
+                                    <TextBlock Text="Category *"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailableCategories}"
+                                              SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
+                                              HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <TextBlock Text="Difficulty *"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <ComboBox ItemsSource="{x:Bind ViewModel.AvailableDifficulties}"
+                                              SelectedItem="{x:Bind ViewModel.SelectedDifficulty, Mode=TwoWay}"
+                                              HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Target Audience and Estimated Time -->
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Spacing="4">
+                                    <TextBlock Text="Target Audience"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBox Text="{x:Bind ViewModel.TargetAudience, Mode=TwoWay}"
+                                             PlaceholderText="e.g., IT Professionals"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <TextBlock Text="Time (min)"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <NumberBox Value="{x:Bind ViewModel.EstimatedMinutes, Mode=TwoWay}"
+                                               Minimum="1"
+                                               Maximum="999"
+                                               SpinButtonPlacementMode="Inline"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Tags -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Tags"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             Text="{x:Bind ViewModel.NewTagInput, Mode=TwoWay}"
+                                             PlaceholderText="Add tag"/>
+                                    <Button Grid.Column="1"
+                                            Content="Add"
+                                            Command="{x:Bind ViewModel.AddTagCommand}"/>
+                                </Grid>
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.Tags, Mode=OneWay}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" Spacing="4"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    CornerRadius="4"
+                                                    Padding="8,4">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="{x:Bind}"
+                                                               Foreground="White"
+                                                               Style="{StaticResource CaptionTextBlockStyle}"/>
+                                                    <Button Content="×"
+                                                            FontSize="16"
+                                                            Foreground="White"
+                                                            Background="Transparent"
+                                                            BorderThickness="0"
+                                                            Padding="4,0"
+                                                            Command="{Binding DataContext.RemoveTagCommand, ElementName=RootPage}"
+                                                            CommandParameter="{x:Bind}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
+                            <!-- Prerequisites -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Prerequisites"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             Text="{x:Bind ViewModel.NewPrerequisiteInput, Mode=TwoWay}"
+                                             PlaceholderText="Add prerequisite"/>
+                                    <Button Grid.Column="1"
+                                            Content="Add"
+                                            Command="{x:Bind ViewModel.AddPrerequisiteCommand}"/>
+                                </Grid>
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.Prerequisites, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <Grid ColumnSpacing="8" Margin="0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{x:Bind}" TextWrapping="Wrap"/>
+                                                <Button Grid.Column="1"
+                                                        Content="×"
+                                                        FontSize="16"
+                                                        Command="{Binding DataContext.RemovePrerequisiteCommand, ElementName=RootPage}"
+                                                        CommandParameter="{x:Bind}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Steps List Section -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="20">
+                        <StackPanel Spacing="12">
+                            <Grid>
+                                <TextBlock Text="Steps"
+                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                           FontWeight="SemiBold"/>
+                                <Button Content="+ Add Step"
+                                        Command="{x:Bind ViewModel.AddStepCommand}"
+                                        HorizontalAlignment="Right"
+                                        Style="{StaticResource AccentButtonStyle}"/>
+                            </Grid>
+
+                            <ListView ItemsSource="{x:Bind ViewModel.Steps, Mode=OneWay}"
+                                      SelectedItem="{x:Bind ViewModel.SelectedStep, Mode=TwoWay}"
+                                      SelectionMode="Single">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodels:StepEditorItem">
+                                        <Grid ColumnSpacing="12" Padding="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0"
+                                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    Width="32" Height="32"
+                                                    CornerRadius="16">
+                                                <TextBlock Text="{x:Bind OrderIndex}"
+                                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                           Foreground="White"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{x:Bind Title, Mode=OneWay}"
+                                                       Style="{StaticResource BodyTextBlockStyle}"
+                                                       VerticalAlignment="Center"/>
+
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                                                <Button Content="▲"
+                                                        FontSize="12"
+                                                        Padding="8,4"
+                                                        Command="{Binding DataContext.MoveStepUpCommand, ElementName=RootPage}"
+                                                        CommandParameter="{x:Bind}"/>
+                                                <Button Content="▼"
+                                                        FontSize="12"
+                                                        Padding="8,4"
+                                                        Command="{Binding DataContext.MoveStepDownCommand, ElementName=RootPage}"
+                                                        CommandParameter="{x:Bind}"/>
+                                                <Button Content="×"
+                                                        FontSize="16"
+                                                        Padding="8,4"
+                                                        Command="{Binding DataContext.RemoveStepCommand, ElementName=RootPage}"
+                                                        CommandParameter="{x:Bind}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Right Column: Step Editor -->
+                <Border Grid.Column="1"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20"
+                        Visibility="{x:Bind ViewModel.SelectedStep, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                    <ScrollViewer>
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="{x:Bind ViewModel.SelectedStep.Title, Mode=OneWay}"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                       FontWeight="SemiBold"/>
+
+                            <!-- Step Title -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Step Title *"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox Text="{x:Bind ViewModel.SelectedStep.Title, Mode=TwoWay}"
+                                         PlaceholderText="Enter step title"/>
+                            </StackPanel>
+
+                            <!-- Step Content (Markdown) with Preview -->
+                            <StackPanel Spacing="8">
+                                <Grid>
+                                    <TextBlock Text="Content (Markdown) *"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               HorizontalAlignment="Left"/>
+
+                                    <!-- Markdown Formatting Toolbar -->
+                                    <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
+                                        <Button Content="**B**" ToolTipService.ToolTip="Bold" FontWeight="Bold" Padding="8,4" MinWidth="32" FontSize="12"/>
+                                        <Button Content="*I*" ToolTipService.ToolTip="Italic" FontStyle="Italic" Padding="8,4" MinWidth="32" FontSize="12"/>
+                                        <Button Content="`C`" ToolTipService.ToolTip="Code" FontFamily="Consolas" Padding="8,4" MinWidth="32" FontSize="12"/>
+                                        <Button Content="H1" ToolTipService.ToolTip="Heading 1" Padding="8,4" MinWidth="32" FontSize="12"/>
+                                        <Button Content="•" ToolTipService.ToolTip="Bullet List" Padding="8,4" MinWidth="32" FontSize="12"/>
+                                        <Button Content="1." ToolTipService.ToolTip="Numbered List" Padding="8,4" MinWidth="32" FontSize="12"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Editor and Preview Tabs -->
+                                <TabView>
+                                    <TabViewItem Header="Editor">
+                                        <TextBox Text="{x:Bind ViewModel.SelectedStep.Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 PlaceholderText="Enter step content in Markdown format...&#x0a;&#x0a;Supported formatting:&#x0a;# Heading 1&#x0a;## Heading 2&#x0a;**bold** *italic* `code`&#x0a;- Bullet list&#x0a;1. Numbered list"
+                                                 TextWrapping="Wrap"
+                                                 AcceptsReturn="True"
+                                                 MinHeight="250"
+                                                 FontFamily="Consolas"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                                    </TabViewItem>
+
+                                    <TabViewItem Header="Preview">
+                                        <ScrollViewer MinHeight="250" MaxHeight="400">
+                                            <RichTextBlock TextWrapping="Wrap"
+                                                          Margin="8"
+                                                          converters:MarkdownToXamlConverter.MarkdownContent="{x:Bind ViewModel.SelectedStep.Content, Mode=OneWay}"/>
+                                        </ScrollViewer>
+                                    </TabViewItem>
+
+                                    <TabViewItem Header="Split">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBox Grid.Column="0"
+                                                     Text="{x:Bind ViewModel.SelectedStep.Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     PlaceholderText="Markdown editor..."
+                                                     TextWrapping="Wrap"
+                                                     AcceptsReturn="True"
+                                                     MinHeight="250"
+                                                     FontFamily="Consolas"
+                                                     Margin="0,0,4,0"
+                                                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+
+                                            <Border Grid.Column="1"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4"
+                                                    Margin="4,0,0,0">
+                                                <ScrollViewer MinHeight="250" MaxHeight="400">
+                                                    <RichTextBlock TextWrapping="Wrap"
+                                                                  Margin="8"
+                                                                  converters:MarkdownToXamlConverter.MarkdownContent="{x:Bind ViewModel.SelectedStep.Content, Mode=OneWay}"/>
+                                                </ScrollViewer>
+                                            </Border>
+                                        </Grid>
+                                    </TabViewItem>
+                                </TabView>
+                            </StackPanel>
+
+                            <!-- Notes -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Notes (Optional)"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox Text="{x:Bind ViewModel.SelectedStep.Notes, Mode=TwoWay}"
+                                         PlaceholderText="Additional notes, tips, or warnings for this step..."
+                                         TextWrapping="Wrap"
+                                         AcceptsReturn="True"
+                                         MinHeight="80"/>
+                            </StackPanel>
+
+                            <!-- Warning Level -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Warning Level"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <ComboBox SelectedIndex="{x:Bind ViewModel.SelectedStep.WarningLevelIndex, Mode=TwoWay}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBoxItem Content="Info"/>
+                                    <ComboBoxItem Content="Warning"/>
+                                    <ComboBoxItem Content="Critical"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Media URLs -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Media / Images"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             Text="{x:Bind ViewModel.SelectedStep.NewMediaUrlInput, Mode=TwoWay}"
+                                             PlaceholderText="Image URL or file path"/>
+                                    <Button Grid.Column="1"
+                                            Content="Add"
+                                            Command="{x:Bind ViewModel.SelectedStep.AddMediaUrlCommand}"/>
+                                    <Button Grid.Column="2"
+                                            Command="{x:Bind ViewModel.SelectedStep.BrowseImageCommand}"
+                                            ToolTipService.ToolTip="Browse and select an image file">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <FontIcon Glyph="&#xE8B9;" FontSize="16"/>
+                                            <TextBlock Text="Browse Images"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.SelectedStep.MediaUrls, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4"
+                                                    Padding="8"
+                                                    Margin="0,4"
+                                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                                <Grid ColumnSpacing="12">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Image Preview (if local file) -->
+                                                    <Border Grid.Column="0"
+                                                            Width="60"
+                                                            Height="60"
+                                                            CornerRadius="4"
+                                                            Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                                        <FontIcon Glyph="&#xEB9F;"
+                                                                  FontSize="24"
+                                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    </Border>
+
+                                                    <!-- Path/URL -->
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                                        <TextBlock Text="{x:Bind}"
+                                                                   TextWrapping="Wrap"
+                                                                   FontSize="12"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                        <TextBlock Text="Image file"
+                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                                    </StackPanel>
+
+                                                    <!-- Remove Button -->
+                                                    <Button Grid.Column="2"
+                                                            Content="&#xE74D;"
+                                                            FontFamily="Segoe MDL2 Assets"
+                                                            FontSize="16"
+                                                            ToolTipService.ToolTip="Remove image"
+                                                            Command="{Binding SelectedStep.RemoveMediaUrlCommand, ElementName=RootPage}"
+                                                            CommandParameter="{x:Bind}"
+                                                            VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Empty State when no step selected -->
+                <Border Grid.Column="1"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Visibility="{x:Bind ViewModel.SelectedStep, Mode=OneWay, Converter={StaticResource InverseNullToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="16">
+                        <FontIcon Glyph="&#xE70F;" FontSize="64" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="Select a step to edit"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="or click '+ Add Step' to create a new one"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>

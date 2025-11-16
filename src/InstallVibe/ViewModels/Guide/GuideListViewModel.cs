@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using InstallVibe.Core.Constants;
 using InstallVibe.Core.Models.Domain;
 using InstallVibe.Core.Services.Data;
+using InstallVibe.Core.Services.User;
 using InstallVibe.Services.Navigation;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
@@ -16,6 +17,7 @@ public partial class GuideListViewModel : ObservableObject
 {
     private readonly IGuideService _guideService;
     private readonly INavigationService _navigationService;
+    private readonly IUserService _userService;
     private readonly ILogger<GuideListViewModel> _logger;
 
     private List<Guide> _allGuides = new();
@@ -59,6 +61,9 @@ public partial class GuideListViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasActiveFilters = false;
 
+    [ObservableProperty]
+    private bool _isAdmin = false;
+
     public List<string> AvailableCategories { get; private set; } = new();
     public List<string> AvailableDifficulties { get; private set; } = new();
     public List<string> AvailableTags { get; private set; } = new();
@@ -67,14 +72,30 @@ public partial class GuideListViewModel : ObservableObject
     public GuideListViewModel(
         IGuideService guideService,
         INavigationService navigationService,
+        IUserService userService,
         ILogger<GuideListViewModel> logger)
     {
         _guideService = guideService ?? throw new ArgumentNullException(nameof(guideService));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+        _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         InitializeFilterOptions();
         _ = LoadGuidesAsync();
+        _ = CheckAdminStatusAsync();
+    }
+
+    private async Task CheckAdminStatusAsync()
+    {
+        try
+        {
+            IsAdmin = await _userService.IsAdminAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking admin status");
+            IsAdmin = false;
+        }
     }
 
     partial void OnSearchTextChanged(string value)
@@ -140,6 +161,13 @@ public partial class GuideListViewModel : ObservableObject
     {
         _logger.LogInformation("Navigating back to Dashboard");
         _navigationService.NavigateTo("Dashboard");
+    }
+
+    [RelayCommand]
+    private void CreateGuide()
+    {
+        _logger.LogInformation("Navigating to Guide Editor for new guide");
+        _navigationService.NavigateTo("GuideEditor");
     }
 
     [RelayCommand]

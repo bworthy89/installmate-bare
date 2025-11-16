@@ -13,6 +13,32 @@ namespace InstallVibe.Converters;
 /// </summary>
 public static partial class MarkdownToXamlConverter
 {
+    // Attached property for binding markdown content in XAML
+    public static readonly DependencyProperty MarkdownContentProperty =
+        DependencyProperty.RegisterAttached(
+            "MarkdownContent",
+            typeof(string),
+            typeof(MarkdownToXamlConverter),
+            new PropertyMetadata(null, OnMarkdownContentChanged));
+
+    public static string? GetMarkdownContent(DependencyObject obj)
+    {
+        return (string?)obj.GetValue(MarkdownContentProperty);
+    }
+
+    public static void SetMarkdownContent(DependencyObject obj, string? value)
+    {
+        obj.SetValue(MarkdownContentProperty, value);
+    }
+
+    private static void OnMarkdownContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is RichTextBlock richTextBlock)
+        {
+            ConvertMarkdownToRichTextBlock(e.NewValue as string, richTextBlock);
+        }
+    }
+
     public static void ConvertMarkdownToRichTextBlock(string? markdown, RichTextBlock richTextBlock)
     {
         if (string.IsNullOrWhiteSpace(markdown) || richTextBlock == null)
