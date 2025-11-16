@@ -41,6 +41,12 @@ public partial class StepViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasNextStep = false;
 
+    [ObservableProperty]
+    private int _completedSteps = 0;
+
+    [ObservableProperty]
+    private int _progressPercentage = 0;
+
     public StepViewModel(
         IGuideEngine guideEngine,
         INavigationService navigationService,
@@ -71,6 +77,13 @@ public partial class StepViewModel : ObservableObject
             // Start or resume guide to get progress
             var progress = await _guideEngine.StartGuideAsync(guideId, userId);
             CurrentProgressId = progress.ProgressId;
+
+            // Update progress tracking - calculate from StepProgress
+            CompletedSteps = progress.StepProgress.Count(kvp => kvp.Value == StepStatus.Completed);
+            if (TotalSteps > 0)
+            {
+                ProgressPercentage = (int)((CompletedSteps / (double)TotalSteps) * 100);
+            }
 
             // Load the current step
             if (!string.IsNullOrEmpty(progress.CurrentStepId))

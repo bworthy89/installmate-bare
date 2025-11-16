@@ -8,7 +8,7 @@
 
     <Grid>
         <ScrollViewer>
-            <StackPanel Margin="24" Spacing="16">
+            <StackPanel Margin="24" Spacing="32" MaxWidth="800">
                 <!-- Back Button -->
                 <Button
                     Command="{x:Bind ViewModel.GoBackCommand}"
@@ -23,49 +23,113 @@
                     </StackPanel>
                 </Button>
 
+                <!-- Page Title -->
                 <TextBlock
                     Text="Settings"
-                    Style="{ThemeResource TitleTextBlockStyle}"/>
+                    Style="{ThemeResource TitleLargeTextBlockStyle}"
+                    FontWeight="SemiBold"/>
 
-                <ComboBox
-                    Header="Theme"
-                    SelectedItem="{x:Bind ViewModel.Theme, Mode=TwoWay}"
-                    Width="200"
-                    HorizontalAlignment="Left">
-                    <ComboBoxItem Content="System"/>
-                    <ComboBoxItem Content="Light"/>
-                    <ComboBoxItem Content="Dark"/>
-                </ComboBox>
+                <!-- Appearance Section -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Appearance" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <StackPanel Spacing="16" Margin="0,8,0,0">
+                        <ComboBox
+                            SelectedItem="{x:Bind ViewModel.Theme, Mode=TwoWay}"
+                            Width="300"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.Name="Theme selection">
+                            <ComboBox.Header>
+                                <TextBlock Text="Theme" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            </ComboBox.Header>
+                            <ComboBoxItem Content="System"/>
+                            <ComboBoxItem Content="Light"/>
+                            <ComboBoxItem Content="Dark"/>
+                        </ComboBox>
+                        <TextBlock Text="Choose how InstallVibe looks. System matches your Windows theme."
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,-8,0,0"/>
+                    </StackPanel>
+                </StackPanel>
 
-                <ToggleSwitch
-                    Header="Auto Sync"
-                    IsOn="{x:Bind ViewModel.AutoSync, Mode=TwoWay}"/>
+                <!-- Synchronization Section -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Synchronization" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <StackPanel Spacing="16" Margin="0,8,0,0">
+                        <ToggleSwitch
+                            IsOn="{x:Bind ViewModel.AutoSync, Mode=TwoWay}"
+                            AutomationProperties.Name="Auto sync toggle">
+                            <ToggleSwitch.Header>
+                                <TextBlock Text="Auto Sync" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            </ToggleSwitch.Header>
+                            <ToggleSwitch.OnContent>
+                                <TextBlock Text="On"/>
+                            </ToggleSwitch.OnContent>
+                            <ToggleSwitch.OffContent>
+                                <TextBlock Text="Off"/>
+                            </ToggleSwitch.OffContent>
+                        </ToggleSwitch>
+                        <TextBlock Text="Automatically sync guides from SharePoint at the specified interval"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,-8,0,0"/>
 
-                <NumberBox
-                    Header="Sync Interval (minutes)"
-                    Value="{x:Bind ViewModel.SyncInterval, Mode=TwoWay}"
-                    Minimum="1"
-                    Maximum="1440"
-                    Width="200"
-                    HorizontalAlignment="Left"/>
+                        <NumberBox
+                            Value="{x:Bind ViewModel.SyncInterval, Mode=TwoWay}"
+                            Minimum="1"
+                            Maximum="1440"
+                            Width="300"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.Name="Sync interval in minutes">
+                            <NumberBox.Header>
+                                <TextBlock Text="Sync Interval (minutes)" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            </NumberBox.Header>
+                        </NumberBox>
+                        <TextBlock Text="How often to check for updates (1-1440 minutes)"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,-8,0,0"/>
+                    </StackPanel>
+                </StackPanel>
 
-                <NumberBox
-                    Header="Cache Limit (MB)"
-                    Value="{x:Bind ViewModel.CacheLimit, Mode=TwoWay}"
-                    Minimum="100"
-                    Maximum="10000"
-                    Width="200"
-                    HorizontalAlignment="Left"/>
+                <!-- Storage Section -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Storage" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <StackPanel Spacing="16" Margin="0,8,0,0">
+                        <NumberBox
+                            Value="{x:Bind ViewModel.CacheLimit, Mode=TwoWay}"
+                            Minimum="100"
+                            Maximum="10000"
+                            Width="300"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.Name="Cache limit in megabytes">
+                            <NumberBox.Header>
+                                <TextBlock Text="Cache Limit (MB)" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            </NumberBox.Header>
+                        </NumberBox>
+                        <TextBlock Text="Maximum disk space for cached guides and media (100-10,000 MB)"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,-8,0,0"/>
+                    </StackPanel>
+                </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,24,0,0">
+                <!-- Action Buttons -->
+                <StackPanel Orientation="Horizontal" Spacing="12">
                     <Button
-                        Content="Save"
+                        Content="Save Changes"
                         Command="{x:Bind ViewModel.SaveSettingsCommand}"
-                        Style="{ThemeResource AccentButtonStyle}"/>
+                        Style="{ThemeResource AccentButtonStyle}"
+                        AutomationProperties.Name="Save settings changes"/>
 
                     <Button
                         Content="Reset to Defaults"
-                        Command="{x:Bind ViewModel.ResetSettingsCommand}"/>
+                        Command="{x:Bind ViewModel.ResetSettingsCommand}"
+                        AutomationProperties.Name="Reset all settings to default values"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

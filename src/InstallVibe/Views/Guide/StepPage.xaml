@@ -34,6 +34,37 @@
                                        VerticalAlignment="Center"
                                        TextWrapping="Wrap"/>
                         </StackPanel>
+
+                        <!-- Overall Progress Bar -->
+                        <StackPanel Spacing="4">
+                            <Grid>
+                                <TextBlock Text="Overall Progress"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
+                                    <TextBlock Text="{x:Bind ViewModel.CompletedSteps, Mode=OneWay}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="of"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="{x:Bind ViewModel.TotalSteps, Mode=OneWay}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="steps •"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                        <Run Text="{x:Bind ViewModel.ProgressPercentage, Mode=OneWay}"/>
+                                        <Run Text="%"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                            <ProgressBar Value="{x:Bind ViewModel.CompletedSteps, Mode=OneWay}"
+                                         Maximum="{x:Bind ViewModel.TotalSteps, Mode=OneWay}"
+                                         Foreground="{ThemeResource AccentFillColorDefaultBrush}"/>
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- Step Content (Markdown) -->

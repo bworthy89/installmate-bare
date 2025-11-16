@@ -394,21 +394,27 @@
                                                        VerticalAlignment="Center"/>
 
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
-                                                <Button Content="▲"
-                                                        FontSize="12"
-                                                        Padding="8,4"
+                                                <Button Padding="8,4"
                                                         Command="{Binding DataContext.MoveStepUpCommand, ElementName=RootPage}"
-                                                        CommandParameter="{x:Bind}"/>
-                                                <Button Content="▼"
-                                                        FontSize="12"
-                                                        Padding="8,4"
+                                                        CommandParameter="{x:Bind}"
+                                                        ToolTipService.ToolTip="Move step up"
+                                                        AutomationProperties.Name="Move step up">
+                                                    <FontIcon Glyph="&#xE74A;" FontSize="14"/>
+                                                </Button>
+                                                <Button Padding="8,4"
                                                         Command="{Binding DataContext.MoveStepDownCommand, ElementName=RootPage}"
-                                                        CommandParameter="{x:Bind}"/>
-                                                <Button Content="×"
-                                                        FontSize="16"
-                                                        Padding="8,4"
+                                                        CommandParameter="{x:Bind}"
+                                                        ToolTipService.ToolTip="Move step down"
+                                                        AutomationProperties.Name="Move step down">
+                                                    <FontIcon Glyph="&#xE74B;" FontSize="14"/>
+                                                </Button>
+                                                <Button Padding="8,4"
                                                         Command="{Binding DataContext.RemoveStepCommand, ElementName=RootPage}"
-                                                        CommandParameter="{x:Bind}"/>
+                                                        CommandParameter="{x:Bind}"
+                                                        ToolTipService.ToolTip="Remove step"
+                                                        AutomationProperties.Name="Remove step">
+                                                    <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                     </DataTemplate>
