@@ -111,6 +111,7 @@ public partial class GuideEditorViewModel : ObservableValidator
     public bool IsEditMode => !_isNewGuide;
     public string PageTitle => _isNewGuide ? "Create New Guide" : $"Edit: {Title}";
     public bool HasAnyErrors => HasErrors;
+    public bool CanSaveDraft => !HasErrors && !IsSaving;
     public bool CanPublish => !HasErrors && Steps.Count > 0 && !IsPublishing;
 
     public GuideEditorViewModel(
@@ -130,6 +131,14 @@ public partial class GuideEditorViewModel : ObservableValidator
 
         // Get the dispatcher queue for the current thread (UI thread)
         _dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+
+        // Hook up ErrorsChanged to update CanSaveDraft and CanPublish
+        ErrorsChanged += (s, e) =>
+        {
+            OnPropertyChanged(nameof(HasAnyErrors));
+            OnPropertyChanged(nameof(CanSaveDraft));
+            OnPropertyChanged(nameof(CanPublish));
+        };
 
         // Initialize auto-save timer (30 seconds)
         _autoSaveTimer = new System.Threading.Timer(
@@ -282,6 +291,22 @@ public partial class GuideEditorViewModel : ObservableValidator
     partial void OnSelectedDifficultyChanged(string value)
     {
         ValidateProperty(value, nameof(SelectedDifficulty));
+    }
+
+    /// <summary>
+    /// Notify when IsSaving changes (affects CanSaveDraft).
+    /// </summary>
+    partial void OnIsSavingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanSaveDraft));
+    }
+
+    /// <summary>
+    /// Notify when IsPublishing changes (affects CanPublish).
+    /// </summary>
+    partial void OnIsPublishingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanPublish));
     }
 
     /// <summary>
@@ -484,6 +509,16 @@ public partial class GuideEditorViewModel : ObservableValidator
     [RelayCommand]
     private async Task SaveDraftAsync()
     {
+        // Validate all properties before saving
+        ValidateAllProperties();
+
+        // If there are validation errors, don't save
+        if (HasErrors)
+        {
+            StatusMessage = "Please fix validation errors before saving";
+            return;
+        }
+
         IsSaving = true;
         StatusMessage = "Saving draft...";
 
