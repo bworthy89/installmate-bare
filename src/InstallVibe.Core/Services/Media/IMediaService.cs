@@ -55,6 +55,14 @@ public interface IMediaService
     /// </summary>
     /// <returns>Media cache statistics.</returns>
     Task<MediaCacheStatistics> GetCacheStatisticsAsync();
+
+    /// <summary>
+    /// Collects all media files for a guide from the local cache.
+    /// Used for exporting guides with their media to archive files.
+    /// </summary>
+    /// <param name="guideId">Guide identifier.</param>
+    /// <returns>Dictionary mapping mediaId to file contents (bytes).</returns>
+    Task<Dictionary<string, byte[]>> CollectGuideMediaAsync(string guideId);
 }
 
 /// <summary>

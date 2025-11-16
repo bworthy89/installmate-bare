@@ -1,5 +1,6 @@
 using InstallVibe.Core.Models.Domain;
 using InstallVibe.Core.Services.Cache;
+using InstallVibe.Core.Services.Data;
 using InstallVibe.Core.Services.SharePoint;
 using InstallVibe.Data.Context;
 using Microsoft.EntityFrameworkCore;
@@ -15,17 +16,20 @@ public class MediaService : IMediaService
     private readonly ISharePointService _sharePointService;
     private readonly ICacheService _cacheService;
     private readonly InstallVibeContext _context;
+    private readonly IGuideService _guideService;
     private readonly ILogger<MediaService> _logger;
 
     public MediaService(
         ISharePointService sharePointService,
         ICacheService cacheService,
         InstallVibeContext context,
+        IGuideService guideService,
         ILogger<MediaService> logger)
     {
         _sharePointService = sharePointService ?? throw new ArgumentNullException(nameof(sharePointService));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
         _context = context ?? throw new ArgumentNullException(nameof(context));
+        _guideService = guideService ?? throw new ArgumentNullException(nameof(guideService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -318,5 +322,72 @@ public class MediaService : IMediaService
             "mp4" or "webm" or "avi" or "mov" or "wmv" or "flv" => true,
             _ => false
         };
+    }
+
+    /// <inheritdoc/>
+    public async Task<Dictionary<string, byte[]>> CollectGuideMediaAsync(string guideId)
+    {
+        var mediaFiles = new Dictionary<string, byte[]>();
+
+        try
+        {
+            // Get the guide
+            var guide = await _guideService.GetGuideAsync(guideId);
+            if (guide == null)
+            {
+                _logger.LogWarning("Guide {GuideId} not found", guideId);
+                return mediaFiles;
+            }
+
+            // Collect all unique media IDs from guide
+            var mediaIds = guide.Steps
+                .SelectMany(s => s.MediaReferences ?? new List<MediaReference>())
+                .Select(mr => mr.MediaId)
+                .Distinct()
+                .ToList();
+
+            if (mediaIds.Count == 0)
+            {
+                _logger.LogInformation("Guide {GuideId} has no media references", guideId);
+                return mediaFiles;
+            }
+
+            _logger.LogInformation("Collecting {Count} media files for guide {GuideId}", mediaIds.Count, guideId);
+
+            // Collect each media file from cache
+            foreach (var mediaId in mediaIds)
+            {
+                try
+                {
+                    var mediaData = await GetMediaAsync(mediaId, downloadIfMissing: false);
+                    if (mediaData != null && mediaData.Length > 0)
+                    {
+                        mediaFiles[mediaId] = mediaData;
+                        _logger.LogDebug("Collected media {MediaId} ({Size} KB)", mediaId, mediaData.Length / 1024.0);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Media {MediaId} not found in cache for guide {GuideId}", mediaId, guideId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error collecting media {MediaId} for guide {GuideId}", mediaId, guideId);
+                }
+            }
+
+            _logger.LogInformation(
+                "Collected {CollectedCount} of {TotalCount} media files for guide {GuideId}",
+                mediaFiles.Count,
+                mediaIds.Count,
+                guideId);
+
+            return mediaFiles;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error collecting media for guide {GuideId}", guideId);
+            return mediaFiles;
+        }
     }
 }

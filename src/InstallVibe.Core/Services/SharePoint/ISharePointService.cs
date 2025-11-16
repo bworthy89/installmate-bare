@@ -48,6 +48,13 @@ public interface ISharePointService
     /// <returns>True if successful.</returns>
     Task<bool> UploadGuideAsync(Guide guide);
 
+    /// <summary>
+    /// Deletes a guide from SharePoint (Admin only).
+    /// </summary>
+    /// <param name="guideId">Guide identifier.</param>
+    /// <returns>True if successful.</returns>
+    Task<bool> DeleteGuideAsync(string guideId);
+
     // ========== Sync Operations ==========
 
     /// <summary>

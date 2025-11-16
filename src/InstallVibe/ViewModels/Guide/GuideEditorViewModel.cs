@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using InstallVibe.Core.Constants;
 using InstallVibe.Core.Models.Domain;
+using InstallVibe.Core.Services.Cache;
 using InstallVibe.Core.Services.Data;
 using InstallVibe.Core.Services.SharePoint;
 using InstallVibe.Core.Services.User;
@@ -19,6 +20,7 @@ public partial class GuideEditorViewModel : ObservableObject
 {
     private readonly IGuideService _guideService;
     private readonly ISharePointService _sharePointService;
+    private readonly ICacheService _cacheService;
     private readonly IUserService _userService;
     private readonly INavigationService _navigationService;
     private readonly ILogger<GuideEditorViewModel> _logger;
@@ -94,12 +96,14 @@ public partial class GuideEditorViewModel : ObservableObject
     public GuideEditorViewModel(
         IGuideService guideService,
         ISharePointService sharePointService,
+        ICacheService cacheService,
         IUserService userService,
         INavigationService navigationService,
         ILogger<GuideEditorViewModel> logger)
     {
         _guideService = guideService ?? throw new ArgumentNullException(nameof(guideService));
         _sharePointService = sharePointService ?? throw new ArgumentNullException(nameof(sharePointService));
+        _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -342,15 +346,22 @@ public partial class GuideEditorViewModel : ObservableObject
         }
 
         IsPublishing = true;
-        StatusMessage = "Publishing to SharePoint...";
+        StatusMessage = "Publishing guide locally...";
 
         try
         {
             var guide = BuildGuideModel();
 
-            // TODO: Implement SharePoint create/update logic
-            // For now, just save locally
+            // Mark as published
+            guide.IsPublished = true;
+            guide.LastModified = DateTime.UtcNow;
+
+            // Save locally
             await _guideService.SaveGuideAsync(guide);
+            _logger.LogInformation("Saved guide locally: {GuideId}", guide.GuideId);
+
+            // Upload to SharePoint (NoOp in local-only mode)
+            var uploadSuccess = await _sharePointService.UploadGuideAsync(guide);
 
             StatusMessage = "Published successfully";
             _logger.LogInformation("Published guide: {GuideId}", guide.GuideId);
@@ -362,7 +373,7 @@ public partial class GuideEditorViewModel : ObservableObject
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error publishing guide");
-            StatusMessage = "Error publishing guide";
+            StatusMessage = $"Error publishing guide: {ex.Message}";
         }
         finally
         {
@@ -540,19 +551,32 @@ public partial class StepEditorItem : ObservableObject
             var file = await picker.PickSingleFileAsync();
             if (file != null)
             {
-                // For now, just add the file path - in production, you'd upload to storage
-                // and get back a URL
-                var filePath = file.Path;
+                // Generate a unique media ID for this file
+                var mediaId = Guid.NewGuid().ToString();
 
-                if (!MediaUrls.Contains(filePath))
+                // Read the file data
+                var buffer = await Windows.Storage.FileIO.ReadBufferAsync(file);
+                var fileData = new byte[buffer.Length];
+                using (var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(buffer))
                 {
-                    MediaUrls.Add(filePath);
+                    dataReader.ReadBytes(fileData);
+                }
+
+                // Cache the media file locally
+                await _cacheService.CacheFileAsync("media", mediaId, fileData, string.Empty);
+
+                _logger.LogInformation("Cached media file {MediaId} ({Size} KB)", mediaId, fileData.Length / 1024.0);
+
+                // Add the mediaId to the list (not the file path)
+                if (!MediaUrls.Contains(mediaId))
+                {
+                    MediaUrls.Add(mediaId);
                 }
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Error picking file - silently handle for now
+            _logger.LogError(ex, "Error browsing and caching image");
             // In production, show error message to user
         }
     }

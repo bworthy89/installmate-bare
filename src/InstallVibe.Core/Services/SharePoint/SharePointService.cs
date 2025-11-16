@@ -279,6 +279,63 @@ public class SharePointService : ISharePointService
         }
     }
 
+    public async Task<bool> DeleteGuideAsync(string guideId)
+    {
+        try
+        {
+            if (!await IsOnlineAsync())
+            {
+                _logger.LogWarning("SharePoint is offline, cannot delete guide");
+                return false;
+            }
+
+            await EnsureSiteInitializedAsync();
+
+            var client = _graphClientFactory.CreateClient();
+
+            // Delete guide folder and all contents
+            var folderPath = $"/Guides/{guideId}";
+
+            try
+            {
+                await client.Drives[_guideDriveId].Root
+                    .ItemWithPath(folderPath)
+                    .DeleteAsync();
+
+                _logger.LogInformation("Deleted guide folder: {FolderPath}", folderPath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Guide folder not found or already deleted: {FolderPath}", folderPath);
+            }
+
+            // Delete from GuideIndex list
+            var items = await client.Sites[_siteId].Lists[_guideIndexListId].Items
+                .GetAsync(config =>
+                {
+                    config.QueryParameters.Filter = $"fields/GuideId eq '{guideId}'";
+                });
+
+            if (items?.Value?.Count > 0)
+            {
+                foreach (var item in items.Value)
+                {
+                    await client.Sites[_siteId].Lists[_guideIndexListId].Items[item.Id]
+                        .DeleteAsync();
+
+                    _logger.LogInformation("Deleted guide index entry for {GuideId}", guideId);
+                }
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting guide {GuideId}", guideId);
+            return false;
+        }
+    }
+
     // ========== Sync Operations ==========
 
     public async Task<SyncResult> SyncUpdatedGuidesAsync(DateTime? since = null, IProgress<SyncProgress>? progress = null)

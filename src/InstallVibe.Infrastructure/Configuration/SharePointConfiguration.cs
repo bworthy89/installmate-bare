@@ -16,10 +16,18 @@ public class SharePointConfiguration
     public string ClientId { get; set; } = string.Empty;
 
     /// <summary>
-    /// Certificate thumbprint (SHA-1 hash) for app-only authentication.
-    /// Certificate must be in Windows Certificate Store (LocalMachine\My).
+    /// Certificate thumbprint (SHA-1 hash) for certificate-based app-only authentication.
+    /// Certificate must be in Windows Certificate Store (LocalMachine\My or CurrentUser\My).
+    /// Use either CertificateThumbprint OR ClientSecret, not both.
     /// </summary>
-    public string CertificateThumbprint { get; set; } = string.Empty;
+    public string? CertificateThumbprint { get; set; }
+
+    /// <summary>
+    /// Client secret for secret-based app-only authentication.
+    /// Simpler to set up than certificates but less secure.
+    /// Use either CertificateThumbprint OR ClientSecret, not both.
+    /// </summary>
+    public string? ClientSecret { get; set; }
 
     /// <summary>
     /// SharePoint site URL (e.g., https://yourtenant.sharepoint.com/sites/InstallVibe).
@@ -93,8 +101,18 @@ public class SharePointConfiguration
         if (string.IsNullOrWhiteSpace(ClientId))
             throw new InvalidOperationException("SharePoint ClientId is required");
 
-        if (string.IsNullOrWhiteSpace(CertificateThumbprint))
-            throw new InvalidOperationException("SharePoint CertificateThumbprint is required");
+        // Require either certificate OR client secret
+        bool hasCertificate = !string.IsNullOrWhiteSpace(CertificateThumbprint);
+        bool hasClientSecret = !string.IsNullOrWhiteSpace(ClientSecret);
+
+        if (!hasCertificate && !hasClientSecret)
+            throw new InvalidOperationException(
+                "SharePoint authentication requires either CertificateThumbprint or ClientSecret");
+
+        if (hasCertificate && hasClientSecret)
+            throw new InvalidOperationException(
+                "SharePoint configuration should use either CertificateThumbprint OR ClientSecret, not both. " +
+                "Certificate-based authentication is more secure.");
 
         if (string.IsNullOrWhiteSpace(SiteUrl))
             throw new InvalidOperationException("SharePoint SiteUrl is required");

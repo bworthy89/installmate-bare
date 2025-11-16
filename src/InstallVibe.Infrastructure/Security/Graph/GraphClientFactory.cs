@@ -43,51 +43,79 @@ public class GraphClientFactory : IGraphClientFactory
 
             try
             {
-                // Load certificate
-                var certificate = LoadCertificate();
-                if (certificate == null)
+                // Check which authentication method to use
+                bool useClientSecret = !string.IsNullOrWhiteSpace(_configuration.ClientSecret);
+                bool useCertificate = !string.IsNullOrWhiteSpace(_configuration.CertificateThumbprint);
+
+                if (useClientSecret)
                 {
-                    throw new InvalidOperationException(
-                        $"Certificate with thumbprint {_configuration.CertificateThumbprint} not found in certificate store");
+                    // Use client secret authentication (simpler)
+                    _logger.LogInformation("Using client secret authentication");
+
+                    var credential = new ClientSecretCredential(
+                        _configuration.TenantId,
+                        _configuration.ClientId,
+                        _configuration.ClientSecret);
+
+                    _cachedClient = new GraphServiceClient(credential);
+
+                    _logger.LogInformation("GraphServiceClient created successfully with client secret");
                 }
-
-                _certificate = certificate;
-
-                // Validate certificate
-                if (!certificate.HasPrivateKey)
+                else if (useCertificate)
                 {
-                    throw new InvalidOperationException(
-                        "Certificate must have a private key for app-only authentication");
-                }
+                    // Use certificate authentication (more secure)
+                    _logger.LogInformation("Using certificate authentication");
 
-                if (certificate.NotAfter < DateTime.UtcNow)
-                {
-                    _logger.LogWarning(
-                        "Certificate expired on {ExpirationDate}",
+                    var certificate = LoadCertificate();
+                    if (certificate == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"Certificate with thumbprint {_configuration.CertificateThumbprint} not found in certificate store");
+                    }
+
+                    _certificate = certificate;
+
+                    // Validate certificate
+                    if (!certificate.HasPrivateKey)
+                    {
+                        throw new InvalidOperationException(
+                            "Certificate must have a private key for app-only authentication");
+                    }
+
+                    if (certificate.NotAfter < DateTime.UtcNow)
+                    {
+                        _logger.LogWarning(
+                            "Certificate expired on {ExpirationDate}",
+                            certificate.NotAfter);
+                        throw new InvalidOperationException(
+                            $"Certificate expired on {certificate.NotAfter:yyyy-MM-dd}");
+                    }
+
+                    if (certificate.NotAfter < DateTime.UtcNow.AddDays(30))
+                    {
+                        _logger.LogWarning(
+                            "Certificate expires soon on {ExpirationDate}",
+                            certificate.NotAfter);
+                    }
+
+                    // Create credential
+                    var credential = new ClientCertificateCredential(
+                        _configuration.TenantId,
+                        _configuration.ClientId,
+                        certificate);
+
+                    // Create Graph client
+                    _cachedClient = new GraphServiceClient(credential);
+
+                    _logger.LogInformation(
+                        "GraphServiceClient created successfully with certificate (expires: {ExpirationDate})",
                         certificate.NotAfter);
-                    throw new InvalidOperationException(
-                        $"Certificate expired on {certificate.NotAfter:yyyy-MM-dd}");
                 }
-
-                if (certificate.NotAfter < DateTime.UtcNow.AddDays(30))
+                else
                 {
-                    _logger.LogWarning(
-                        "Certificate expires soon on {ExpirationDate}",
-                        certificate.NotAfter);
+                    throw new InvalidOperationException(
+                        "No authentication method configured. Set either ClientSecret or CertificateThumbprint in configuration.");
                 }
-
-                // Create credential
-                var credential = new ClientCertificateCredential(
-                    _configuration.TenantId,
-                    _configuration.ClientId,
-                    certificate);
-
-                // Create Graph client
-                _cachedClient = new GraphServiceClient(credential);
-
-                _logger.LogInformation(
-                    "GraphServiceClient created successfully (Certificate expires: {ExpirationDate})",
-                    certificate.NotAfter);
 
                 return _cachedClient;
             }
