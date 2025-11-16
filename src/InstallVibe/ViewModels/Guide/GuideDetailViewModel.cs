@@ -27,6 +27,17 @@ public partial class GuideDetailViewModel : ObservableObject
     [ObservableProperty]
     private bool _isStarting = false;
 
+    public bool HasTags => Guide?.Tags?.Count > 0;
+    public bool HasPrerequisites => Guide?.Prerequisites?.Count > 0;
+    public bool HasSteps => Guide?.Steps?.Count > 0;
+
+    partial void OnGuideChanged(Guide? value)
+    {
+        OnPropertyChanged(nameof(HasTags));
+        OnPropertyChanged(nameof(HasPrerequisites));
+        OnPropertyChanged(nameof(HasSteps));
+    }
+
     public GuideDetailViewModel(
         IGuideService guideService,
         IGuideEngine guideEngine,

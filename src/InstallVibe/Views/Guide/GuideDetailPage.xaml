@@ -4,30 +4,263 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:domain="using:InstallVibe.Core.Models.Domain"
     mc:Ignorable="d">
 
     <Grid>
-        <ScrollViewer>
-            <StackPanel Margin="24" Spacing="16">
-                <TextBlock
-                    Text="{x:Bind ViewModel.Guide.Title, Mode=OneWay}"
-                    Style="{ThemeResource TitleTextBlockStyle}"/>
+        <!-- Loading State -->
+        <ProgressRing
+            IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+            Width="48" Height="48"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"/>
 
-                <TextBlock
-                    Text="{x:Bind ViewModel.Guide.Description, Mode=OneWay}"
-                    Style="{ThemeResource BodyTextBlockStyle}"
-                    TextWrapping="Wrap"/>
+        <!-- Content -->
+        <ScrollViewer Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <Grid Padding="24" MaxWidth="1200">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                <Button
-                    Content="Start Guide"
-                    Command="{x:Bind ViewModel.StartGuideCommand}"
-                    Style="{ThemeResource AccentButtonStyle}"
-                    HorizontalAlignment="Left"/>
+                <!-- Header Section -->
+                <StackPanel Grid.Row="0" Spacing="16" Margin="0,0,0,32">
+                    <!-- Category Badge -->
+                    <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
+                            CornerRadius="4"
+                            Padding="12,6"
+                            HorizontalAlignment="Left">
+                        <TextBlock Text="{x:Bind ViewModel.Guide.Category, Mode=OneWay}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Foreground="White"/>
+                    </Border>
 
-                <ProgressRing
-                    IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
-                    Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}"/>
-            </StackPanel>
+                    <!-- Title -->
+                    <TextBlock Text="{x:Bind ViewModel.Guide.Title, Mode=OneWay}"
+                               Style="{ThemeResource TitleLargeTextBlockStyle}"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"/>
+
+                    <!-- Description -->
+                    <TextBlock Text="{x:Bind ViewModel.Guide.Description, Mode=OneWay}"
+                               Style="{ThemeResource BodyLargeTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,8"/>
+
+                    <!-- Metadata Grid -->
+                    <Grid ColumnSpacing="32" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Difficulty -->
+                        <StackPanel Grid.Column="0" Grid.Row="0" Spacing="4">
+                            <TextBlock Text="Difficulty"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE7C3;" FontSize="16"
+                                          Foreground="{ThemeResource SystemFillColorAttentionBrush}"/>
+                                <TextBlock Text="{x:Bind ViewModel.Guide.Difficulty, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Duration -->
+                        <StackPanel Grid.Column="1" Grid.Row="0" Spacing="4">
+                            <TextBlock Text="Estimated Time"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE121;" FontSize="16"
+                                          Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="{x:Bind ViewModel.Guide.EstimatedTime, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Steps -->
+                        <StackPanel Grid.Column="2" Grid.Row="0" Spacing="4">
+                            <TextBlock Text="Steps"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8FD;" FontSize="16"
+                                          Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="{x:Bind ViewModel.Guide.StepCount, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Target Audience -->
+                        <StackPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Spacing="4"
+                                    Visibility="{x:Bind ViewModel.Guide.TargetAudience, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                            <TextBlock Text="Target Audience"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE716;" FontSize="16"
+                                          Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="{x:Bind ViewModel.Guide.TargetAudience, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Tags -->
+                    <StackPanel Spacing="8" Visibility="{x:Bind ViewModel.HasTags, Mode=OneWay}">
+                        <TextBlock Text="Tags"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Guide.Tags, Mode=OneWay}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="8"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                            CornerRadius="4"
+                                            Padding="8,4">
+                                        <TextBlock Text="{x:Bind}"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Action Buttons -->
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                        <Button Content="Start Guide"
+                                Command="{x:Bind ViewModel.StartGuideCommand}"
+                                Style="{ThemeResource AccentButtonStyle}">
+                            <Button.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="Enter"/>
+                            </Button.KeyboardAccelerators>
+                        </Button>
+                        <Button Content="Add to Favorites"
+                                IsEnabled="False">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE734;" FontSize="16"/>
+                                <TextBlock Text="Add to Favorites"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Details Section -->
+                <StackPanel Grid.Row="1" Spacing="24">
+                    <!-- Prerequisites -->
+                    <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.HasPrerequisites, Mode=OneWay}">
+                        <TextBlock Text="Prerequisites"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   FontWeight="SemiBold"/>
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Guide.Prerequisites, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+                                        <FontIcon Glyph="&#xE73E;" FontSize="14"
+                                                  Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                        <TextBlock Text="{x:Bind}"
+                                                   Style="{StaticResource BodyTextBlockStyle}"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Steps Overview -->
+                    <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.HasSteps, Mode=OneWay}">
+                        <TextBlock Text="Steps Overview"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   FontWeight="SemiBold"/>
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Guide.Steps, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="domain:Step">
+                                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="16"
+                                            Margin="0,0,0,8">
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0"
+                                                    Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    Width="32" Height="32"
+                                                    CornerRadius="16">
+                                                <TextBlock Text="{x:Bind OrderIndex, Mode=OneWay}"
+                                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                           Foreground="White"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{x:Bind Title, Mode=OneWay}"
+                                                       Style="{StaticResource BodyTextBlockStyle}"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Version Info -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="16">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Guide Information"
+                                       Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Column="0" Grid.Row="0"
+                                           Text="Version:"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Grid.Column="1" Grid.Row="0"
+                                           Text="{x:Bind ViewModel.Guide.Version, Mode=OneWay}"
+                                           Style="{StaticResource CaptionTextBlockStyle}"/>
+
+                                <TextBlock Grid.Column="0" Grid.Row="1"
+                                           Text="Last Updated:"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Grid.Column="1" Grid.Row="1"
+                                           Text="{x:Bind ViewModel.Guide.LastModified, Mode=OneWay}"
+                                           Style="{StaticResource CaptionTextBlockStyle}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Page>
