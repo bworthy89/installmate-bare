@@ -183,9 +183,9 @@ public class GuideEngine : IGuideEngine
         try
         {
             await _progressService.UpdateStepProgressAsync(progressId, stepId, status);
-            
+
             // Get updated progress
-            var progress = await _progressService.GetProgressAsync(progressId, string.Empty);
+            var progress = await _progressService.GetProgressByIdAsync(progressId);
             if (progress == null)
             {
                 throw new InvalidOperationException($"Progress not found: {progressId}");
@@ -215,7 +215,7 @@ public class GuideEngine : IGuideEngine
             await _progressService.UpdateStepProgressAsync(progressId, stepId, StepStatus.Completed);
 
             // Get updated progress
-            var progress = await _progressService.GetProgressAsync(progressId, string.Empty);
+            var progress = await _progressService.GetProgressByIdAsync(progressId);
             if (progress == null)
             {
                 throw new InvalidOperationException($"Progress not found: {progressId}");

@@ -8,6 +8,7 @@ namespace InstallVibe.Core.Services.Data;
 public interface IProgressService
 {
     Task<GuideProgress?> GetProgressAsync(string guideId, string userId);
+    Task<GuideProgress?> GetProgressByIdAsync(string progressId);
     Task SaveProgressAsync(GuideProgress progress);
     Task<List<GuideProgress>> GetAllProgressAsync(string userId);
     Task DeleteProgressAsync(string progressId);

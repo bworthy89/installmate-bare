@@ -47,6 +47,21 @@ public class ProgressService : IProgressService
     }
 
     /// <inheritdoc/>
+    public async Task<GuideProgress?> GetProgressByIdAsync(string progressId)
+    {
+        try
+        {
+            var entity = await _context.Progress.FindAsync(progressId);
+            return entity != null ? MapEntityToModel(entity) : null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting progress by ID {ProgressId}", progressId);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task SaveProgressAsync(GuideProgress progress)
     {
         try
