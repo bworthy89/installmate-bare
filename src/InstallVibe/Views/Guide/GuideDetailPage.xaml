@@ -44,7 +44,7 @@
 
                     <!-- Description -->
                     <TextBlock Text="{x:Bind ViewModel.Guide.Description, Mode=OneWay}"
-                               Style="{ThemeResource BodyLargeTextBlockStyle}"
+                               Style="{ThemeResource SubtitleTextBlockStyle}"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                TextWrapping="Wrap"
                                Margin="0,0,0,8"/>
