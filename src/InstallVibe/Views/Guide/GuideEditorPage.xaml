@@ -43,7 +43,7 @@
                         Style="{StaticResource AccentButtonStyle}"/>
                 <Button Content="Publish"
                         Command="{x:Bind ViewModel.PublishToSharePointCommand}"
-                        IsEnabled="{x:Bind ViewModel.IsPublishing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                        IsEnabled="{x:Bind ViewModel.CanPublish, Mode=OneWay}"/>
                 <Button Content="Cancel"
                         Command="{x:Bind ViewModel.CancelCommand}"/>
             </StackPanel>
@@ -73,23 +73,49 @@
 
                             <!-- Title -->
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Title *"
+                                <TextBlock Text="What is this guide called? *"
                                            Style="{StaticResource CaptionTextBlockStyle}"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBox Text="{x:Bind ViewModel.Title, Mode=TwoWay}"
-                                         PlaceholderText="Enter guide title"/>
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           ToolTipService.ToolTip="Give your guide a clear, descriptive title that helps users find it easily"/>
+                                <TextBox Text="{x:Bind ViewModel.Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         PlaceholderText="e.g., Windows 11 Setup"
+                                         MaxLength="100"/>
+                                <!-- Validation Errors -->
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.GetErrors('Title'), Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <TextBlock Text="{x:Bind}"
+                                                       Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Margin="0,2,0,0"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </StackPanel>
 
                             <!-- Description -->
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Description *"
+                                <TextBlock Text="Briefly describe what this guide does *"
                                            Style="{StaticResource CaptionTextBlockStyle}"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBox Text="{x:Bind ViewModel.Description, Mode=TwoWay}"
-                                         PlaceholderText="Enter guide description"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           ToolTipService.ToolTip="Write a short summary that explains what users will learn or accomplish"/>
+                                <TextBox Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         PlaceholderText="This guide walks technicians through installing Windows 11..."
                                          TextWrapping="Wrap"
                                          AcceptsReturn="True"
-                                         MinHeight="80"/>
+                                         MinHeight="80"
+                                         MaxLength="500"/>
+                                <!-- Validation Errors -->
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.GetErrors('Description'), Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <TextBlock Text="{x:Bind}"
+                                                       Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Margin="0,2,0,0"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </StackPanel>
 
                             <!-- Category and Difficulty -->
@@ -100,21 +126,45 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Spacing="4">
-                                    <TextBlock Text="Category *"
+                                    <TextBlock Text="What type of guide is this? *"
                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               ToolTipService.ToolTip="Select the category that best describes your guide"/>
                                     <ComboBox ItemsSource="{x:Bind ViewModel.AvailableCategories}"
                                               SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
                                               HorizontalAlignment="Stretch"/>
+                                    <!-- Validation Errors -->
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.GetErrors('SelectedCategory'), Mode=OneWay}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="x:String">
+                                                <TextBlock Text="{x:Bind}"
+                                                           Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Margin="0,2,0,0"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" Spacing="4">
-                                    <TextBlock Text="Difficulty *"
+                                    <TextBlock Text="How challenging is this? *"
                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               ToolTipService.ToolTip="Choose the skill level required to follow this guide"/>
                                     <ComboBox ItemsSource="{x:Bind ViewModel.AvailableDifficulties}"
                                               SelectedItem="{x:Bind ViewModel.SelectedDifficulty, Mode=TwoWay}"
                                               HorizontalAlignment="Stretch"/>
+                                    <!-- Validation Errors -->
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.GetErrors('SelectedDifficulty'), Mode=OneWay}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="x:String">
+                                                <TextBlock Text="{x:Bind}"
+                                                           Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Margin="0,2,0,0"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
                             </Grid>
 
@@ -126,17 +176,19 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Spacing="4">
-                                    <TextBlock Text="Target Audience"
+                                    <TextBlock Text="Who is this for? (optional)"
                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               ToolTipService.ToolTip="Specify the intended audience for this guide"/>
                                     <TextBox Text="{x:Bind ViewModel.TargetAudience, Mode=TwoWay}"
-                                             PlaceholderText="e.g., IT Professionals"/>
+                                             PlaceholderText="e.g., Field technicians, Help desk staff"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" Spacing="4">
-                                    <TextBlock Text="Time (min)"
+                                    <TextBlock Text="How long will this take? (minutes)"
                                                Style="{StaticResource CaptionTextBlockStyle}"
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               ToolTipService.ToolTip="Estimate how many minutes this guide will take to complete"/>
                                     <NumberBox Value="{x:Bind ViewModel.EstimatedMinutes, Mode=TwoWay}"
                                                Minimum="1"
                                                Maximum="999"
@@ -146,17 +198,24 @@
 
                             <!-- Tags -->
                             <StackPanel Spacing="8">
-                                <TextBlock Text="Tags"
+                                <TextBlock Text="Keywords to help find this guide (optional)"
                                            Style="{StaticResource CaptionTextBlockStyle}"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           ToolTipService.ToolTip="Add keywords that make this guide easier to find in search"/>
                                 <Grid ColumnSpacing="8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="0"
+                                             x:Name="TagInputBox"
                                              Text="{x:Bind ViewModel.NewTagInput, Mode=TwoWay}"
-                                             PlaceholderText="Add tag"/>
+                                             PlaceholderText="e.g., windows, installation, setup">
+                                        <TextBox.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="Enter"
+                                                                Invoked="OnTagInputEnterPressed"/>
+                                        </TextBox.KeyboardAccelerators>
+                                    </TextBox>
                                     <Button Grid.Column="1"
                                             Content="Add"
                                             Command="{x:Bind ViewModel.AddTagCommand}"/>
@@ -193,17 +252,24 @@
 
                             <!-- Prerequisites -->
                             <StackPanel Spacing="8">
-                                <TextBlock Text="Prerequisites"
+                                <TextBlock Text="What you'll need before starting (optional)"
                                            Style="{StaticResource CaptionTextBlockStyle}"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           ToolTipService.ToolTip="List any tools, software, or materials needed before starting this guide"/>
                                 <Grid ColumnSpacing="8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="0"
+                                             x:Name="PrerequisiteInputBox"
                                              Text="{x:Bind ViewModel.NewPrerequisiteInput, Mode=TwoWay}"
-                                             PlaceholderText="Add prerequisite"/>
+                                             PlaceholderText="e.g., Windows 11 ISO file, USB drive (8GB+)">
+                                        <TextBox.KeyboardAccelerators>
+                                            <KeyboardAccelerator Key="Enter"
+                                                                Invoked="OnPrerequisiteInputEnterPressed"/>
+                                        </TextBox.KeyboardAccelerators>
+                                    </TextBox>
                                     <Button Grid.Column="1"
                                             Content="Add"
                                             Command="{x:Bind ViewModel.AddPrerequisiteCommand}"/>
@@ -425,27 +491,14 @@
                                 <TextBlock Text="Media / Images"
                                            Style="{StaticResource CaptionTextBlockStyle}"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <Grid ColumnSpacing="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0"
-                                             Text="{x:Bind ViewModel.SelectedStep.NewMediaUrlInput, Mode=TwoWay}"
-                                             PlaceholderText="Image URL or file path"/>
-                                    <Button Grid.Column="1"
-                                            Content="Add"
-                                            Command="{x:Bind ViewModel.SelectedStep.AddMediaUrlCommand}"/>
-                                    <Button Grid.Column="2"
-                                            Command="{x:Bind ViewModel.BrowseImageCommand}"
-                                            ToolTipService.ToolTip="Browse and select an image file">
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <FontIcon Glyph="&#xE8B9;" FontSize="16"/>
-                                            <TextBlock Text="Browse Images"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
+                                <Button Command="{x:Bind ViewModel.BrowseImageCommand}"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        HorizontalAlignment="Stretch">
+                                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                        <FontIcon Glyph="&#xE8B9;" FontSize="20"/>
+                                        <TextBlock Text="Add Image" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Button>
                                 <ItemsControl ItemsSource="{x:Bind ViewModel.SelectedStep.MediaUrls, Mode=OneWay}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="x:String">

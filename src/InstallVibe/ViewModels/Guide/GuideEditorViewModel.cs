@@ -10,13 +10,15 @@ using InstallVibe.Services.Navigation;
 using InstallVibe.Views.Shell;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using Windows.System;
 
 namespace InstallVibe.ViewModels.Guides;
 
 /// <summary>
 /// ViewModel for creating and editing guides with full WYSIWYG editing capabilities.
 /// </summary>
-public partial class GuideEditorViewModel : ObservableObject
+public partial class GuideEditorViewModel : ObservableValidator
 {
     private readonly IGuideService _guideService;
     private readonly ISharePointService _sharePointService;
@@ -27,21 +29,35 @@ public partial class GuideEditorViewModel : ObservableObject
 
     private string? _originalGuideId;
     private bool _isNewGuide;
+    private System.Threading.Timer? _autoSaveTimer;
+    private DateTime _lastUserEdit = DateTime.Now;
 
     // Guide Metadata
     [ObservableProperty]
     private string _guideId = Guid.NewGuid().ToString();
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Guide name is required")]
+    [MinLength(3, ErrorMessage = "Guide name must be at least 3 characters")]
+    [MaxLength(100, ErrorMessage = "Guide name must be 100 characters or less")]
     private string _title = string.Empty;
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Description is required")]
+    [MinLength(10, ErrorMessage = "Description must be at least 10 characters")]
+    [MaxLength(500, ErrorMessage = "Description must be 500 characters or less")]
     private string _description = string.Empty;
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Category is required")]
     private string _selectedCategory = GuideCategories.All[0];
 
     [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Difficulty is required")]
     private string _selectedDifficulty = GuideDifficulty.All[0];
 
     [ObservableProperty]
@@ -92,6 +108,8 @@ public partial class GuideEditorViewModel : ObservableObject
 
     public bool IsEditMode => !_isNewGuide;
     public string PageTitle => _isNewGuide ? "Create New Guide" : $"Edit: {Title}";
+    public bool HasAnyErrors => HasErrors;
+    public bool CanPublish => !HasErrors && Steps.Count > 0 && !IsPublishing;
 
     public GuideEditorViewModel(
         IGuideService guideService,
@@ -108,6 +126,13 @@ public partial class GuideEditorViewModel : ObservableObject
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+        // Initialize auto-save timer (30 seconds)
+        _autoSaveTimer = new System.Threading.Timer(
+            async _ => await OnAutoSaveTickAsync(),
+            null,
+            TimeSpan.FromSeconds(30),
+            TimeSpan.FromSeconds(30));
+
         _ = InitializeAsync();
     }
 
@@ -121,6 +146,141 @@ public partial class GuideEditorViewModel : ObservableObject
         {
             _logger.LogError(ex, "Error initializing editor");
         }
+    }
+
+    /// <summary>
+    /// Gets the next version number for the guide. For new guides, returns "1.0".
+    /// For existing guides, increments the minor version (e.g., 1.0 -> 1.1 -> 1.2).
+    /// </summary>
+    private async Task<string> GetNextVersionAsync()
+    {
+        if (_isNewGuide)
+            return "1.0";
+
+        if (_originalGuideId != null)
+        {
+            try
+            {
+                var existingGuide = await _guideService.GetGuideAsync(_originalGuideId);
+                if (existingGuide?.Version != null)
+                {
+                    var parts = existingGuide.Version.Split('.');
+                    if (parts.Length >= 2 && int.TryParse(parts[1], out int minor))
+                    {
+                        return $"{parts[0]}.{minor + 1}"; // e.g., 1.0 -> 1.1 -> 1.2
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error getting next version, defaulting to 1.0");
+            }
+        }
+        return "1.0";
+    }
+
+    /// <summary>
+    /// Auto-save timer tick handler. Saves draft every 30 seconds if conditions are met.
+    /// </summary>
+    private async Task OnAutoSaveTickAsync()
+    {
+        // Only auto-save if:
+        // 1. Not a new unsaved guide (must have been saved at least once)
+        // 2. Title is not empty
+        // 3. Not currently saving manually
+        // 4. User hasn't edited in last 5 seconds (debounce)
+
+        if (!_isNewGuide &&
+            !string.IsNullOrWhiteSpace(Title) &&
+            !IsSaving &&
+            (DateTime.Now - _lastUserEdit).TotalSeconds >= 5)
+        {
+            await AutoSaveAsync();
+        }
+    }
+
+    /// <summary>
+    /// Automatically saves the guide draft in the background.
+    /// </summary>
+    private async Task AutoSaveAsync()
+    {
+        try
+        {
+            IsSaving = true;
+            var previousStatus = StatusMessage;
+            StatusMessage = "Auto-saving...";
+
+            // Auto-increment version for existing guides
+            if (!_isNewGuide)
+            {
+                Version = await GetNextVersionAsync();
+            }
+
+            var guide = BuildGuideModel();
+            await _guideService.SaveGuideAsync(guide);
+
+            StatusMessage = $"Auto-saved at {DateTime.Now:h:mm tt}";
+            _logger.LogDebug("Auto-saved guide {GuideId} v{Version}", guide.GuideId, Version);
+
+            // Restore previous status after 3 seconds
+            await Task.Delay(3000);
+            if (StatusMessage.StartsWith("Auto-saved"))
+            {
+                StatusMessage = previousStatus;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Auto-save failed");
+            StatusMessage = "Auto-save failed";
+        }
+        finally
+        {
+            IsSaving = false;
+        }
+    }
+
+    /// <summary>
+    /// Tracks when user edits title.
+    /// </summary>
+    partial void OnTitleChanged(string value)
+    {
+        _lastUserEdit = DateTime.Now;
+        ValidateProperty(value, nameof(Title));
+    }
+
+    /// <summary>
+    /// Tracks when user edits description.
+    /// </summary>
+    partial void OnDescriptionChanged(string value)
+    {
+        _lastUserEdit = DateTime.Now;
+        ValidateProperty(value, nameof(Description));
+    }
+
+    /// <summary>
+    /// Validates selected category.
+    /// </summary>
+    partial void OnSelectedCategoryChanged(string value)
+    {
+        ValidateProperty(value, nameof(SelectedCategory));
+    }
+
+    /// <summary>
+    /// Validates selected difficulty.
+    /// </summary>
+    partial void OnSelectedDifficultyChanged(string value)
+    {
+        ValidateProperty(value, nameof(SelectedDifficulty));
+    }
+
+    /// <summary>
+    /// Cleanup resources when ViewModel is disposed.
+    /// </summary>
+    public void Dispose()
+    {
+        _autoSaveTimer?.Dispose();
+        _autoSaveTimer = null;
     }
 
     /// <summary>
@@ -319,11 +479,26 @@ public partial class GuideEditorViewModel : ObservableObject
 
         try
         {
+            // Auto-increment version if editing existing guide
+            if (!_isNewGuide)
+            {
+                Version = await GetNextVersionAsync();
+            }
+
             var guide = BuildGuideModel();
             await _guideService.SaveGuideAsync(guide);
 
-            StatusMessage = "Draft saved successfully";
-            _logger.LogInformation("Draft saved: {GuideId}", guide.GuideId);
+            // If this was a new guide, it's no longer new after first save
+            if (_isNewGuide)
+            {
+                _isNewGuide = false;
+                _originalGuideId = guide.GuideId;
+                OnPropertyChanged(nameof(PageTitle));
+                OnPropertyChanged(nameof(IsEditMode));
+            }
+
+            StatusMessage = $"Draft saved (v{Version})";
+            _logger.LogInformation("Draft saved: {GuideId} v{Version}", guide.GuideId, Version);
         }
         catch (Exception ex)
         {
@@ -339,6 +514,9 @@ public partial class GuideEditorViewModel : ObservableObject
     [RelayCommand]
     private async Task PublishToSharePointAsync()
     {
+        // Validate all properties
+        ValidateAllProperties();
+
         if (!ValidateGuide())
         {
             StatusMessage = "Please fill in all required fields";
@@ -350,7 +528,11 @@ public partial class GuideEditorViewModel : ObservableObject
 
         try
         {
+            // Auto-increment version before publishing
+            Version = await GetNextVersionAsync();
+
             var guide = BuildGuideModel();
+            guide.Version = Version;
 
             // Mark as published
             guide.IsPublished = true;
@@ -358,13 +540,13 @@ public partial class GuideEditorViewModel : ObservableObject
 
             // Save locally
             await _guideService.SaveGuideAsync(guide);
-            _logger.LogInformation("Saved guide locally: {GuideId}", guide.GuideId);
+            _logger.LogInformation("Saved guide locally: {GuideId} v{Version}", guide.GuideId, Version);
 
             // Upload to SharePoint (NoOp in local-only mode)
             var uploadSuccess = await _sharePointService.UploadGuideAsync(guide);
 
-            StatusMessage = "Published successfully";
-            _logger.LogInformation("Published guide: {GuideId}", guide.GuideId);
+            StatusMessage = $"Published successfully (v{Version})";
+            _logger.LogInformation("Published guide: {GuideId} v{Version}", guide.GuideId, Version);
 
             // Navigate back to guide list
             await Task.Delay(1500); // Show success message
@@ -561,19 +743,6 @@ public partial class StepEditorItem : ObservableObject
 
     [ObservableProperty]
     private ObservableCollection<string> _mediaUrls = new();
-
-    [ObservableProperty]
-    private string _newMediaUrlInput = string.Empty;
-
-    [RelayCommand]
-    private void AddMediaUrl()
-    {
-        if (!string.IsNullOrWhiteSpace(NewMediaUrlInput) && !MediaUrls.Contains(NewMediaUrlInput))
-        {
-            MediaUrls.Add(NewMediaUrlInput.Trim());
-            NewMediaUrlInput = string.Empty;
-        }
-    }
 
     [RelayCommand]
     private void RemoveMediaUrl(string url)

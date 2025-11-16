@@ -111,8 +111,8 @@ public partial class App : Application
             navigationService.NavigateTo("WelcomeSetup");
         }
 
-        // Start OneDrive auto-sync if enabled and configured
-        await StartOneDriveSyncIfEnabledAsync();
+        // Note: OneDrive sync disabled - using manual import/export mode
+        // await StartOneDriveSyncIfEnabledAsync();
 
         _window.Activate();
     }

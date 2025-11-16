@@ -65,6 +65,7 @@ private_key.pem
 *.cer
 sharepoint.dat
 activation.dat
+appsettings.Development.json
 
 # MSIX packaging
 AppPackages/
