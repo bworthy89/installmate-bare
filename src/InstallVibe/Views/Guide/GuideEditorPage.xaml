@@ -438,7 +438,7 @@
                                             Content="Add"
                                             Command="{x:Bind ViewModel.SelectedStep.AddMediaUrlCommand}"/>
                                     <Button Grid.Column="2"
-                                            Command="{x:Bind ViewModel.SelectedStep.BrowseImageCommand}"
+                                            Command="{x:Bind ViewModel.BrowseImageCommand}"
                                             ToolTipService.ToolTip="Browse and select an image file">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <FontIcon Glyph="&#xE8B9;" FontSize="16"/>

@@ -461,6 +461,63 @@ public partial class GuideEditorViewModel : ObservableObject
             _ => "image" // Default to image
         };
     }
+
+    [RelayCommand]
+    private async Task BrowseImageAsync()
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary
+            };
+
+            // Add supported image file types
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".png");
+            picker.FileTypeFilter.Add(".gif");
+            picker.FileTypeFilter.Add(".bmp");
+            picker.FileTypeFilter.Add(".webp");
+
+            // Initialize the picker with the window handle
+            var window = App.GetService<MainWindow>();
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                // Generate a unique media ID for this file
+                var mediaId = Guid.NewGuid().ToString();
+
+                // Read the file data
+                var buffer = await Windows.Storage.FileIO.ReadBufferAsync(file);
+                var fileData = new byte[buffer.Length];
+                using (var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(buffer))
+                {
+                    dataReader.ReadBytes(fileData);
+                }
+
+                // Cache the media file locally
+                await _cacheService.CacheFileAsync("media", mediaId, fileData, string.Empty);
+
+                _logger.LogInformation("Cached media file {MediaId} ({Size} KB)", mediaId, fileData.Length / 1024.0);
+
+                // Add the mediaId to the current step's media URLs
+                if (SelectedStep != null && !SelectedStep.MediaUrls.Contains(mediaId))
+                {
+                    SelectedStep.MediaUrls.Add(mediaId);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error browsing and caching image");
+            // In production, show error message to user
+        }
+    }
 }
 
 /// <summary>
@@ -522,62 +579,5 @@ public partial class StepEditorItem : ObservableObject
     private void RemoveMediaUrl(string url)
     {
         MediaUrls.Remove(url);
-    }
-
-    [RelayCommand]
-    private async Task BrowseImageAsync()
-    {
-        try
-        {
-            var picker = new Windows.Storage.Pickers.FileOpenPicker
-            {
-                ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
-                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary
-            };
-
-            // Add supported image file types
-            picker.FileTypeFilter.Add(".jpg");
-            picker.FileTypeFilter.Add(".jpeg");
-            picker.FileTypeFilter.Add(".png");
-            picker.FileTypeFilter.Add(".gif");
-            picker.FileTypeFilter.Add(".bmp");
-            picker.FileTypeFilter.Add(".webp");
-
-            // Initialize the picker with the window handle
-            var window = App.GetService<MainWindow>();
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
-
-            var file = await picker.PickSingleFileAsync();
-            if (file != null)
-            {
-                // Generate a unique media ID for this file
-                var mediaId = Guid.NewGuid().ToString();
-
-                // Read the file data
-                var buffer = await Windows.Storage.FileIO.ReadBufferAsync(file);
-                var fileData = new byte[buffer.Length];
-                using (var dataReader = Windows.Storage.Streams.DataReader.FromBuffer(buffer))
-                {
-                    dataReader.ReadBytes(fileData);
-                }
-
-                // Cache the media file locally
-                await _cacheService.CacheFileAsync("media", mediaId, fileData, string.Empty);
-
-                _logger.LogInformation("Cached media file {MediaId} ({Size} KB)", mediaId, fileData.Length / 1024.0);
-
-                // Add the mediaId to the list (not the file path)
-                if (!MediaUrls.Contains(mediaId))
-                {
-                    MediaUrls.Add(mediaId);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error browsing and caching image");
-            // In production, show error message to user
-        }
     }
 }
