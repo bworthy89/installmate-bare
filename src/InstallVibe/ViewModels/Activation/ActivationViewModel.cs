@@ -65,11 +65,11 @@ public partial class ActivationViewModel : ObservableObject
                 UpdateLicenseInfo(result.Token);
                 ProductKey = string.Empty; // Clear the key from display
 
-                _logger.LogInformation("Setup completed successfully - navigating to Dashboard");
+                _logger.LogInformation("Setup completed successfully - navigating to Dashboard via Shell");
 
-                // Show success message briefly, then navigate to Dashboard
+                // Show success message briefly, then navigate to Shell with Dashboard
                 await Task.Delay(2000);
-                _navigationService.NavigateTo("Dashboard");
+                _navigationService.NavigateTo("Shell", "Dashboard");
             }
             else
             {

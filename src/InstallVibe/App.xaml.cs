@@ -94,8 +94,8 @@ public partial class App : Application
 
             if (licenseInfo.IsActivated)
             {
-                Log.Information("App is activated - navigating to Dashboard");
-                navigationService.NavigateTo("Dashboard");
+                Log.Information("App is activated - navigating to Dashboard via Shell");
+                navigationService.NavigateTo("Shell", "Dashboard");
             }
             else
             {
@@ -199,6 +199,7 @@ public partial class App : Application
             var nav = new NavigationService(sp.GetRequiredService<ILogger<NavigationService>>());
 
             // Register pages
+            nav.RegisterPage<ShellPage>("Shell");
             nav.RegisterPage<WelcomeSetupPage>("WelcomeSetup");
             nav.RegisterPage<ActivationPage>("Activation");
             nav.RegisterPage<ActivationPage>("LicenseSetup"); // Alias for activation page in setup context
@@ -224,6 +225,7 @@ public partial class App : Application
         services.AddTransient<AdminEditorViewModel>();
 
         // Views
+        services.AddTransient<ShellPage>();
         services.AddTransient<WelcomeSetupPage>();
         services.AddTransient<ActivationPage>();
         services.AddTransient<DashboardPage>();

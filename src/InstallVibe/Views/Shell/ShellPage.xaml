@@ -6,10 +6,53 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <!-- Placeholder for ShellPage with NavigationView -->
     <Grid>
-        <NavigationView>
-            <!-- TODO: Add navigation items -->
+        <NavigationView
+            x:Name="NavigationViewControl"
+            IsBackButtonVisible="Auto"
+            IsBackEnabled="{x:Bind ViewModel.CanGoBack, Mode=OneWay}"
+            BackRequested="NavigationView_BackRequested"
+            ItemInvoked="NavigationView_ItemInvoked"
+            PaneDisplayMode="Left"
+            IsSettingsVisible="False">
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem
+                    Content="Dashboard"
+                    Tag="Dashboard"
+                    Icon="Home">
+                    <NavigationViewItem.InfoBadge>
+                        <InfoBadge Value="{x:Bind ViewModel.InProgressCount, Mode=OneWay}"
+                                   Visibility="{x:Bind ViewModel.HasInProgress, Mode=OneWay}"/>
+                    </NavigationViewItem.InfoBadge>
+                </NavigationViewItem>
+
+                <NavigationViewItem
+                    Content="Browse Guides"
+                    Tag="GuideList"
+                    Icon="Library"/>
+
+                <NavigationViewItemSeparator/>
+
+                <NavigationViewItem
+                    Content="Settings"
+                    Tag="Settings">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE713;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem
+                    Content="Admin Panel"
+                    Tag="AdminEditor"
+                    Visibility="{x:Bind ViewModel.IsAdminMode, Mode=OneWay}">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7EF;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <Frame x:Name="ContentFrame"/>
         </NavigationView>
     </Grid>
 </Page>

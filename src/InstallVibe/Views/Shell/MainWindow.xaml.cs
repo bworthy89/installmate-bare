@@ -24,8 +24,7 @@ public sealed partial class MainWindow : Window
         // Set up navigation frame
         _navigationService.Frame = RootFrame;
 
-        // Navigate to activation page by default
-        _navigationService.NavigateTo("Activation");
+        // Navigation will be handled by App.xaml.cs OnLaunched
     }
 
     private void SetWindowSize(int width, int height)
