@@ -107,7 +107,8 @@
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <ComboBox ItemsSource="{x:Bind ViewModel.AvailableCategories}"
                               SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
-                              HorizontalAlignment="Stretch"/>
+                              HorizontalAlignment="Stretch"
+                              AutomationProperties.Name="Filter by category"/>
                 </StackPanel>
 
                 <!-- Difficulty Filter -->
@@ -117,17 +118,23 @@
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <ComboBox ItemsSource="{x:Bind ViewModel.AvailableDifficulties}"
                               SelectedItem="{x:Bind ViewModel.SelectedDifficulty, Mode=TwoWay}"
-                              HorizontalAlignment="Stretch"/>
+                              HorizontalAlignment="Stretch"
+                              AutomationProperties.Name="Filter by difficulty"/>
                 </StackPanel>
 
                 <!-- Search Box -->
                 <StackPanel Grid.Column="2" Grid.Row="0" Margin="8,0,8,0" Spacing="4">
-                    <TextBlock Text="Search"
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <FontIcon Glyph="&#xE721;" FontSize="14"
+                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="Search"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
                     <TextBox Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             PlaceholderText="🔍 Search by title, description, author, tags..."
-                             HorizontalAlignment="Stretch"/>
+                             PlaceholderText="Search by title, description, author, tags..."
+                             HorizontalAlignment="Stretch"
+                             AutomationProperties.Name="Search guides"/>
                 </StackPanel>
 
                 <!-- Clear Filters Button -->
@@ -224,6 +231,49 @@
                           Width="48" Height="48"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"/>
+
+            <!-- Empty State - No Guides -->
+            <StackPanel Visibility="{x:Bind ViewModel.HasNoGuides, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16"
+                        MaxWidth="400">
+                <FontIcon Glyph="&#xE8F1;" FontSize="96"
+                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                <TextBlock Text="No guides yet"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Get started by creating your first guide or syncing from OneDrive"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <Button Content="Create Your First Guide"
+                            Command="{x:Bind ViewModel.CreateGuideCommand}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Visibility="{x:Bind ViewModel.IsAdminWithNoGuides, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Button Content="Sync from OneDrive"
+                            Command="{x:Bind ViewModel.SyncFromOneDriveCommand}"
+                            Visibility="{x:Bind ViewModel.OneDriveSyncEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Empty State - No Filtered Results -->
+            <StackPanel Visibility="{x:Bind ViewModel.HasNoFilteredResults, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16"
+                        MaxWidth="400">
+                <FontIcon Glyph="&#xE71C;" FontSize="96"
+                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                <TextBlock Text="No guides match your filters"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Try adjusting your category, difficulty, tags, or search terms"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"/>
+                <Button Content="Clear All Filters"
+                        Command="{x:Bind ViewModel.ClearFiltersCommand}"
+                        HorizontalAlignment="Center"
+                        Margin="0,8,0,0"/>
+            </StackPanel>
 
             <!-- Grid View (Cards) -->
             <ScrollViewer Visibility="{x:Bind ViewModel.IsGridView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">

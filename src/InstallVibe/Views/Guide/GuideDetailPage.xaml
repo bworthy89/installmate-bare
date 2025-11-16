@@ -148,7 +148,9 @@
                                 <KeyboardAccelerator Key="Enter"/>
                             </Button.KeyboardAccelerators>
                         </Button>
-                        <Button IsEnabled="False">
+                        <Button IsEnabled="False"
+                                ToolTipService.ToolTip="Favorites feature coming soon"
+                                AutomationProperties.Name="Add to Favorites (disabled - coming soon)">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE734;" FontSize="16"/>
                                 <TextBlock Text="Add to Favorites"/>

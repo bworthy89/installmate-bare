@@ -83,6 +83,15 @@ public partial class GuideListViewModel : ObservableObject
     [ObservableProperty]
     private bool _oneDriveSyncEnabled = false;
 
+    [ObservableProperty]
+    private bool _hasNoGuides = false;
+
+    [ObservableProperty]
+    private bool _hasNoFilteredResults = false;
+
+    [ObservableProperty]
+    private bool _isAdminWithNoGuides = false;
+
     public List<string> AvailableCategories { get; private set; } = new();
     public List<string> AvailableDifficulties { get; private set; } = new();
     public List<string> AvailableStatuses { get; private set; } = new();
@@ -416,6 +425,11 @@ public partial class GuideListViewModel : ObservableObject
         {
             FilterSummary = $"Showing {filteredCount} of {totalCount} guides";
         }
+
+        // Update empty state flags
+        HasNoGuides = totalCount == 0;
+        HasNoFilteredResults = filteredCount == 0 && totalCount > 0;
+        IsAdminWithNoGuides = IsAdmin && totalCount == 0;
     }
 
     private void UpdateHasActiveFilters()

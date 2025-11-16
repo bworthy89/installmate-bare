@@ -60,6 +60,9 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasLastAccessed = false;
 
+    [ObservableProperty]
+    private bool _isFirstTimeUser = false;
+
     public DashboardViewModel(
         IGuideService guideService,
         IProgressService progressService,
@@ -101,6 +104,11 @@ public partial class DashboardViewModel : ObservableObject
             var lastAccessedTask = LoadLastAccessedGuideAsync(userId);
 
             await Task.WhenAll(newGuidesTask, inProgressTask, completedTask, pinnedTask, lastAccessedTask);
+
+            // Check if this is a first-time user (no content in any section)
+            IsFirstTimeUser = !HasNewGuides && !HasInProgressGuides &&
+                             !HasCompletedGuides && !HasPinnedGuides &&
+                             !HasLastAccessed;
 
             _logger.LogInformation("Dashboard loaded successfully");
         }

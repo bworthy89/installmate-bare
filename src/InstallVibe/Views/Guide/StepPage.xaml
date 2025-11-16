@@ -105,12 +105,16 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
                     <Button Content="Skip Step"
                             Command="{x:Bind ViewModel.SkipStepCommand}"
-                            IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                            IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                            ToolTipService.ToolTip="Skip this step without marking it complete"
+                            AutomationProperties.Name="Skip step without marking it complete"/>
 
                     <Button Content="Mark Complete"
                             Command="{x:Bind ViewModel.CompleteStepCommand}"
                             Style="{ThemeResource AccentButtonStyle}"
-                            IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                            IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                            ToolTipService.ToolTip="Mark this step as done and continue (Ctrl+Enter)"
+                            AutomationProperties.Name="Mark step as complete">
                         <Button.KeyboardAccelerators>
                             <KeyboardAccelerator Key="Enter" Modifiers="Control"/>
                         </Button.KeyboardAccelerators>
