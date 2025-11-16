@@ -341,7 +341,10 @@ public class GuideService : IGuideService
             Description = entity.Description,
             RequiredLicense = ParseLicenseType(entity.RequiredLicense),
             IsPublished = entity.Published,
+            Status = ParsePublishStatus(entity.Status),
+            PublishedDate = entity.PublishedDate,
             LastModified = entity.LastModified,
+            CreatedDate = entity.CreatedDate,
             Steps = new List<Step>(),
             Metadata = new GuideMetadata()
         };
@@ -355,6 +358,8 @@ public class GuideService : IGuideService
         entity.Description = model.Description;
         entity.RequiredLicense = model.RequiredLicense.ToString();
         entity.Published = model.IsPublished;
+        entity.Status = model.Status.ToString();
+        entity.PublishedDate = model.PublishedDate;
         entity.LastModified = model.LastModified;
         entity.LocalPath = PathConstants.GetGuideJsonPath(model.GuideId);
         entity.Checksum = checksum;
@@ -369,6 +374,16 @@ public class GuideService : IGuideService
         {
             "admin" => Core.Models.Activation.LicenseType.Admin,
             _ => Core.Models.Activation.LicenseType.Tech
+        };
+    }
+
+    private PublishStatus ParsePublishStatus(string? status)
+    {
+        return status?.ToLower() switch
+        {
+            "published" => PublishStatus.Published,
+            "archived" => PublishStatus.Archived,
+            _ => PublishStatus.Draft
         };
     }
 
