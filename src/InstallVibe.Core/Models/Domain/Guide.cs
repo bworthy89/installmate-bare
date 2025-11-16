@@ -88,6 +88,21 @@ public class Guide
     public int TotalSteps => Steps?.Count ?? 0;
 
     /// <summary>
+    /// Convenience property for step count (alias for TotalSteps).
+    /// </summary>
+    public int StepCount => TotalSteps;
+
+    /// <summary>
+    /// Convenience property for prerequisites.
+    /// </summary>
+    public List<string> Prerequisites => Metadata?.Prerequisites ?? new();
+
+    /// <summary>
+    /// Estimated time formatted as a string.
+    /// </summary>
+    public string EstimatedTime => EstimatedMinutes.HasValue ? $"{EstimatedMinutes} min" : "Not specified";
+
+    /// <summary>
     /// Total number of media references across all steps.
     /// </summary>
     public int TotalMediaReferences => Steps?.SelectMany(s => s.MediaReferences ?? new List<MediaReference>()).Count() ?? 0;
