@@ -148,8 +148,7 @@
                                 <KeyboardAccelerator Key="Enter"/>
                             </Button.KeyboardAccelerators>
                         </Button>
-                        <Button Content="Add to Favorites"
-                                IsEnabled="False">
+                        <Button IsEnabled="False">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE734;" FontSize="16"/>
                                 <TextBlock Text="Add to Favorites"/>

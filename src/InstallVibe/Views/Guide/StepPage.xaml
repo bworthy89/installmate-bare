@@ -7,35 +7,118 @@
     mc:Ignorable="d">
 
     <Grid>
-        <ScrollViewer>
-            <StackPanel Margin="24" Spacing="16">
-                <TextBlock
-                    Text="{x:Bind ViewModel.CurrentStep.Title, Mode=OneWay}"
-                    Style="{ThemeResource TitleTextBlockStyle}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-                <TextBlock
-                    Text="{x:Bind ViewModel.CurrentStep.Content, Mode=OneWay}"
-                    Style="{ThemeResource BodyTextBlockStyle}"
-                    TextWrapping="Wrap"/>
+        <!-- Content Area -->
+        <ScrollViewer Grid.Row="0">
+            <Grid Padding="32" MaxWidth="1000">
+                <StackPanel Spacing="24">
+                    <!-- Step Header -->
+                    <StackPanel Spacing="12">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                    Width="40" Height="40"
+                                    CornerRadius="20">
+                                <TextBlock Text="{Binding ViewModel.CurrentStep.OrderIndex, Mode=OneWay, FallbackValue=1}"
+                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="{Binding ViewModel.CurrentStep.Title, Mode=OneWay, FallbackValue=''}"
+                                       Style="{ThemeResource TitleLargeTextBlockStyle}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
 
-                <TextBox
-                    Text="{x:Bind ViewModel.Notes, Mode=TwoWay}"
-                    PlaceholderText="Add notes..."
-                    AcceptsReturn="True"
-                    TextWrapping="Wrap"
-                    Height="100"/>
+                    <!-- Step Content (Markdown) -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="24">
+                        <RichTextBlock x:Name="ContentRichTextBlock"
+                                       TextWrapping="Wrap"
+                                       IsTextSelectionEnabled="True"/>
+                    </Border>
 
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <Button
-                        Content="Complete"
-                        Command="{x:Bind ViewModel.CompleteStepCommand}"
-                        Style="{ThemeResource AccentButtonStyle}"/>
-
-                    <Button
-                        Content="Skip"
-                        Command="{x:Bind ViewModel.SkipStepCommand}"/>
+                    <!-- Notes Section -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Notes (Optional)"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                        <TextBox Text="{x:Bind ViewModel.Notes, Mode=TwoWay}"
+                                 PlaceholderText="Add your notes here..."
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="100"
+                                 MaxHeight="200"/>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+            </Grid>
         </ScrollViewer>
+
+        <!-- Action Bar -->
+        <Border Grid.Row="1"
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="24,16">
+            <Grid MaxWidth="1000">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Navigation Info -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                    <Button Command="{x:Bind ViewModel.PreviousStepCommand}"
+                            IsEnabled="{x:Bind ViewModel.HasPreviousStep, Mode=OneWay}"
+                            Style="{StaticResource SubtleButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE76B;" FontSize="14"/>
+                            <TextBlock Text="Previous"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{x:Bind ViewModel.NextStepCommand}"
+                            IsEnabled="{x:Bind ViewModel.HasNextStep, Mode=OneWay}"
+                            Style="{StaticResource SubtleButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Next"/>
+                            <FontIcon Glyph="&#xE76C;" FontSize="14"/>
+                        </StackPanel>
+                    </Button>
+
+                    <TextBlock VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                        <Run Text="Step"/>
+                        <Run Text="{Binding ViewModel.CurrentStep.OrderIndex, Mode=OneWay, FallbackValue=1}"/>
+                        <Run Text="of"/>
+                        <Run Text="{Binding ViewModel.TotalSteps, Mode=OneWay}"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Action Buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                    <Button Content="Skip Step"
+                            Command="{x:Bind ViewModel.SkipStepCommand}"
+                            IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+
+                    <Button Content="Mark Complete"
+                            Command="{x:Bind ViewModel.CompleteStepCommand}"
+                            Style="{ThemeResource AccentButtonStyle}"
+                            IsEnabled="{x:Bind ViewModel.IsProcessing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="Enter" Modifiers="Control"/>
+                        </Button.KeyboardAccelerators>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Page>
