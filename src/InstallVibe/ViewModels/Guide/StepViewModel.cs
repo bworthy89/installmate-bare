@@ -32,6 +32,15 @@ public partial class StepViewModel : ObservableObject
     [ObservableProperty]
     private string _notes = string.Empty;
 
+    [ObservableProperty]
+    private int _totalSteps = 0;
+
+    [ObservableProperty]
+    private bool _hasPreviousStep = false;
+
+    [ObservableProperty]
+    private bool _hasNextStep = false;
+
     public StepViewModel(
         IGuideEngine guideEngine,
         INavigationService navigationService,
@@ -52,6 +61,13 @@ public partial class StepViewModel : ObservableObject
             // TODO: Get actual user ID from authentication service
             var userId = Environment.UserName; // Temporary: use Windows username
 
+            // Load the guide to get step count
+            var guide = await _guideEngine.LoadGuideAsync(guideId);
+            if (guide != null)
+            {
+                TotalSteps = guide.StepCount;
+            }
+
             // Start or resume guide to get progress
             var progress = await _guideEngine.StartGuideAsync(guideId, userId);
             CurrentProgressId = progress.ProgressId;
@@ -64,6 +80,7 @@ public partial class StepViewModel : ObservableObject
                 if (CurrentStep != null)
                 {
                     _logger.LogInformation("Loaded step {StepId} for guide {GuideId}", CurrentStep.StepId, guideId);
+                    await UpdateNavigationState();
                 }
                 else
                 {
@@ -78,6 +95,62 @@ public partial class StepViewModel : ObservableObject
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading guide {GuideId} for step view", guideId);
+        }
+    }
+
+    private async Task UpdateNavigationState()
+    {
+        if (string.IsNullOrEmpty(CurrentGuideId) || CurrentStep == null)
+        {
+            HasPreviousStep = false;
+            HasNextStep = false;
+            return;
+        }
+
+        var previousStep = await _guideEngine.GetPreviousStepAsync(CurrentGuideId, CurrentStep.StepId);
+        var nextStep = await _guideEngine.GetNextStepAsync(CurrentGuideId, CurrentStep.StepId);
+
+        HasPreviousStep = previousStep != null;
+        HasNextStep = nextStep != null;
+    }
+
+    [RelayCommand]
+    private async Task PreviousStepAsync()
+    {
+        if (CurrentStep == null || string.IsNullOrEmpty(CurrentGuideId)) return;
+
+        try
+        {
+            var previousStep = await _guideEngine.GetPreviousStepAsync(CurrentGuideId, CurrentStep.StepId);
+            if (previousStep != null)
+            {
+                CurrentStep = previousStep;
+                await UpdateNavigationState();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error navigating to previous step");
+        }
+    }
+
+    [RelayCommand]
+    private async Task NextStepAsync()
+    {
+        if (CurrentStep == null || string.IsNullOrEmpty(CurrentGuideId)) return;
+
+        try
+        {
+            var nextStep = await _guideEngine.GetNextStepAsync(CurrentGuideId, CurrentStep.StepId);
+            if (nextStep != null)
+            {
+                CurrentStep = nextStep;
+                await UpdateNavigationState();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error navigating to next step");
         }
     }
 
