@@ -114,6 +114,12 @@ public partial class GuideEditorViewModel : ObservableValidator
     public bool CanSaveDraft => !HasErrors && !IsSaving;
     public bool CanPublish => !HasErrors && Steps.Count > 0 && !IsPublishing;
 
+    // Validation error properties for binding
+    public IEnumerable<string> TitleErrors => GetErrors(nameof(Title)).Cast<string>();
+    public IEnumerable<string> DescriptionErrors => GetErrors(nameof(Description)).Cast<string>();
+    public IEnumerable<string> SelectedCategoryErrors => GetErrors(nameof(SelectedCategory)).Cast<string>();
+    public IEnumerable<string> SelectedDifficultyErrors => GetErrors(nameof(SelectedDifficulty)).Cast<string>();
+
     public GuideEditorViewModel(
         IGuideService guideService,
         ISharePointService sharePointService,
@@ -138,6 +144,16 @@ public partial class GuideEditorViewModel : ObservableValidator
             OnPropertyChanged(nameof(HasAnyErrors));
             OnPropertyChanged(nameof(CanSaveDraft));
             OnPropertyChanged(nameof(CanPublish));
+
+            // Notify error properties so UI updates
+            if (e.PropertyName == nameof(Title))
+                OnPropertyChanged(nameof(TitleErrors));
+            else if (e.PropertyName == nameof(Description))
+                OnPropertyChanged(nameof(DescriptionErrors));
+            else if (e.PropertyName == nameof(SelectedCategory))
+                OnPropertyChanged(nameof(SelectedCategoryErrors));
+            else if (e.PropertyName == nameof(SelectedDifficulty))
+                OnPropertyChanged(nameof(SelectedDifficultyErrors));
         };
 
         // Initialize auto-save timer (30 seconds)

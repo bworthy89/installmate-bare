@@ -81,7 +81,7 @@
                                          PlaceholderText="e.g., Windows 11 Setup"
                                          MaxLength="100"/>
                                 <!-- Validation Errors -->
-                                <ItemsControl ItemsSource="{x:Bind ViewModel.GetErrors('Title'), Mode=OneWay}">
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.TitleErrors, Mode=OneWay}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="x:String">
                                             <TextBlock Text="{x:Bind}"
@@ -106,7 +106,7 @@
                                          MinHeight="80"
                                          MaxLength="500"/>
                                 <!-- Validation Errors -->
-                                <ItemsControl ItemsSource="{x:Bind ViewModel.GetErrors('Description'), Mode=OneWay}">
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.DescriptionErrors, Mode=OneWay}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="x:String">
                                             <TextBlock Text="{x:Bind}"
@@ -134,7 +134,7 @@
                                               SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
                                               HorizontalAlignment="Stretch"/>
                                     <!-- Validation Errors -->
-                                    <ItemsControl ItemsSource="{x:Bind ViewModel.GetErrors('SelectedCategory'), Mode=OneWay}">
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.SelectedCategoryErrors, Mode=OneWay}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="x:String">
                                                 <TextBlock Text="{x:Bind}"
@@ -155,7 +155,7 @@
                                               SelectedItem="{x:Bind ViewModel.SelectedDifficulty, Mode=TwoWay}"
                                               HorizontalAlignment="Stretch"/>
                                     <!-- Validation Errors -->
-                                    <ItemsControl ItemsSource="{x:Bind ViewModel.GetErrors('SelectedDifficulty'), Mode=OneWay}">
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.SelectedDifficultyErrors, Mode=OneWay}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="x:String">
                                                 <TextBlock Text="{x:Bind}"
